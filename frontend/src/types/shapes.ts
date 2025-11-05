@@ -1,4 +1,4 @@
-export type ShapeType = 'rectangle' | 'circle' | 'line'
+export type ShapeType = 'rectangle' | 'circle' | 'line' | 'ellipse'
 
 export interface Shape {
   id: number
@@ -8,6 +8,8 @@ export interface Shape {
   width?: number
   height?: number
   radius?: number
+  radiusX?: number
+  radiusY?: number
   x2?: number
   y2?: number
   fill: string

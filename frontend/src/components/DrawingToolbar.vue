@@ -54,6 +54,14 @@ const handleShapesUpdated = (shapes: Shape[]) => {
         >
           ╱
         </button>
+        <button 
+          class="tool-btn"
+          :class="{ active: selectedTool === 'ellipse' }"
+          @click="selectTool('ellipse')"
+          title="Ellipse"
+        >
+          ⬭
+        </button>
       </div>
     </div>
     <WhiteboardCanvas 

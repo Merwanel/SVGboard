@@ -18,6 +18,8 @@ const svgCode = computed(() => {
       code += `  <circle cx="${shape.x}" cy="${shape.y}" r="${shape.radius}" fill="${shape.fill}" />\n`
     } else if (shape.type === 'line') {
       code += `  <line x1="${shape.x}" y1="${shape.y}" x2="${shape.x2}" y2="${shape.y2}" stroke="${shape.fill}" stroke-width="3" />\n`
+    } else if (shape.type === 'ellipse') {
+      code += `  <ellipse cx="${shape.x}" cy="${shape.y}" rx="${shape.radiusX}" ry="${shape.radiusY}" fill="${shape.fill}" />\n`
     }
   })
   

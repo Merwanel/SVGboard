@@ -49,6 +49,9 @@ const handleCanvasClick = (event: MouseEvent) => {
   } else if (props.selectedTool === 'line') {
     newShape.x2 = x + 100
     newShape.y2 = y
+  } else if (props.selectedTool === 'ellipse') {
+    newShape.radiusX = 60
+    newShape.radiusY = 40
   }
 
   shapes.value.push(newShape)
@@ -147,6 +150,17 @@ const stopDrag = () => {
       :y2="shape.y2"
       stroke="#42b983"
       stroke-width="3"
+      class="shape"
+      @mousedown="startDrag($event, shape.id)"
+    />
+    <ellipse
+      v-for="shape in shapes.filter(s => s.type === 'ellipse')"
+      :key="shape.id"
+      :cx="shape.x"
+      :cy="shape.y"
+      :rx="shape.radiusX"
+      :ry="shape.radiusY"
+      :fill="shape.fill"
       class="shape"
       @mousedown="startDrag($event, shape.id)"
     />
