@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Shape } from '@/types/shapes'
+import type { Shape, ShapeType } from '@/types/shapes'
 
 const props = defineProps<{
-  selectedTool: 'rectangle' | 'circle' | 'line' | null
+  selectedTool: ShapeType | null
 }>()
 
 const DRAG_THRESHOLD = 3

@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import WhiteboardCanvas from './WhiteboardCanvas.vue'
-import type { Shape } from '@/types/shapes'
+import type { Shape, ShapeType } from '@/types/shapes'
 
 const isCollapsed = ref(false)
-const selectedTool = ref<'rectangle' | 'circle' | 'line' | null>(null)
+const selectedTool = ref<ShapeType | null>(null)
 
 const emit = defineEmits<{
   shapesUpdated: [shapes: Shape[]]
 }>()
 
-const selectTool = (tool: 'rectangle' | 'circle' | 'line') => {
+const selectTool = (tool: ShapeType) => {
   selectedTool.value = selectedTool.value === tool ? null : tool
 }
 

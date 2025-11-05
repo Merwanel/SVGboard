@@ -1,6 +1,8 @@
+export type ShapeType = 'rectangle' | 'circle' | 'line'
+
 export interface Shape {
   id: number
-  type: 'rectangle' | 'circle' | 'line'
+  type: ShapeType
   x: number
   y: number
   width?: number
