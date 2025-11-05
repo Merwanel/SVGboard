@@ -65,9 +65,9 @@ const setView = (view: 'code' | 'history' | 'browser') => {
 .left-panel {
   position: relative;
   width: 400px;
-  background: #f5f5f5;
-  border-right: 1px solid #ddd;
-  transition: width 0.3s ease;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  transition: width 0.3s ease, background-color 0.3s ease;
   overflow: hidden;
 }
 
@@ -93,7 +93,7 @@ const setView = (view: 'code' | 'history' | 'browser') => {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1rem;
-  border-bottom: 2px solid #ddd;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .tab {
@@ -102,7 +102,7 @@ const setView = (view: 'code' | 'history' | 'browser') => {
   padding: 0.75rem 1rem;
   cursor: pointer;
   font-size: 0.875rem;
-  color: #666;
+  color: var(--text-secondary);
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
   transition: all 0.2s ease;
@@ -126,7 +126,7 @@ const setView = (view: 'code' | 'history' | 'browser') => {
 .placeholder {
   padding: 2rem;
   text-align: center;
-  color: #999;
+  color: var(--text-secondary);
 }
 
 .collapse-btn {

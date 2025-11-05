@@ -1,67 +1,85 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import WhiteboardCanvas from './WhiteboardCanvas.vue'
+import type { Shape } from '@/types/shapes'
 
 const isCollapsed = ref(false)
+const selectedTool = ref<'rectangle' | 'circle' | 'line' | null>(null)
 
 const emit = defineEmits<{
-  toolSelected: [tool: 'rectangle' | 'circle' | 'line' | null]
+  shapesUpdated: [shapes: Shape[]]
 }>()
-
-const selectedTool = ref<'rectangle' | 'circle' | 'line' | null>(null)
 
 const selectTool = (tool: 'rectangle' | 'circle' | 'line') => {
   selectedTool.value = selectedTool.value === tool ? null : tool
-  emit('toolSelected', selectedTool.value)
 }
 
 const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value
 }
+
+const handleShapesUpdated = (shapes: Shape[]) => {
+  emit('shapesUpdated', shapes)
+}
 </script>
 
 <template>
-  <div class="toolbar" :class="{ collapsed: isCollapsed }">
-    <button class="collapse-btn" @click="toggleCollapse">
-      {{ isCollapsed ? '▼' : '▲' }}
-    </button>
-    <div class="tools" v-show="!isCollapsed">
-      <button 
-        class="tool-btn"
-        :class="{ active: selectedTool === 'rectangle' }"
-        @click="selectTool('rectangle')"
-        title="Rectangle"
-      >
-        ▭
+  <div class="toolbar-container">
+    <div class="toolbar" :class="{ collapsed: isCollapsed }">
+      <button class="collapse-btn" @click="toggleCollapse">
+        {{ isCollapsed ? '▼' : '▲' }}
       </button>
-      <button 
-        class="tool-btn"
-        :class="{ active: selectedTool === 'circle' }"
-        @click="selectTool('circle')"
-        title="Circle"
-      >
-        ○
-      </button>
-      <button 
-        class="tool-btn"
-        :class="{ active: selectedTool === 'line' }"
-        @click="selectTool('line')"
-        title="Line"
-      >
-        ╱
-      </button>
+      <div class="tools" v-show="!isCollapsed">
+        <button 
+          class="tool-btn"
+          :class="{ active: selectedTool === 'rectangle' }"
+          @click="selectTool('rectangle')"
+          title="Rectangle"
+        >
+          ▭
+        </button>
+        <button 
+          class="tool-btn"
+          :class="{ active: selectedTool === 'circle' }"
+          @click="selectTool('circle')"
+          title="Circle"
+        >
+          ○
+        </button>
+        <button 
+          class="tool-btn"
+          :class="{ active: selectedTool === 'line' }"
+          @click="selectTool('line')"
+          title="Line"
+        >
+          ╱
+        </button>
+      </div>
     </div>
+    <WhiteboardCanvas 
+      :selected-tool="selectedTool"
+      @shapes-updated="handleShapesUpdated"
+    />
   </div>
 </template>
 
 <style scoped>
+.toolbar-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
 .toolbar {
-  background: #f5f5f5;
-  border-bottom: 1px solid #ddd;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
   padding: 0.5rem;
   display: flex;
   gap: 0.5rem;
   align-items: center;
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 .toolbar.collapsed {
@@ -90,8 +108,9 @@ const toggleCollapse = () => {
 }
 
 .tool-btn {
-  background: white;
-  border: 2px solid #ddd;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
   border-radius: 4px;
   width: 48px;
   height: 48px;
@@ -102,7 +121,7 @@ const toggleCollapse = () => {
 
 .tool-btn:hover {
   border-color: #42b983;
-  background: #f0f9f5;
+  background: var(--bg-secondary);
 }
 
 .tool-btn.active {
