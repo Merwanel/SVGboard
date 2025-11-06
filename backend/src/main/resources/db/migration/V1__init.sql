@@ -14,6 +14,8 @@ CREATE TABLE snapshot (
   shapes_data JSON NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  CONSTRAINT fk_snapshot_project FOREIGN KEY (project_id) REFERENCES project(id)
+  CONSTRAINT fk_snapshot_project 
+    FOREIGN KEY (project_id) REFERENCES project(id) 
+    ON DELETE CASCADE
 );
 
