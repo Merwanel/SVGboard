@@ -1,0 +1,11 @@
+server : 
+  port : 8080
+spring :
+  application :
+    name : SVGboard
+  datasource:
+    url : jdbc:mysql://localhost:3306/history?createDatabaseIfNotExist=true
+    username: root
+    password: my-secret-pw
+  jpa:
+    show-sql : true
