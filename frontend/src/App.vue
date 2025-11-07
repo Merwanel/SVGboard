@@ -1,30 +1,80 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import LeftPanel from './components/LeftPanel.vue'
 import RightPanel from './components/RightPanel.vue'
+import SaveStatusIndicator from './components/SaveStatusIndicator.vue'
 import Theme from './components/Theme.vue'
+import { useProjects } from '@/composables/useProjects'
 import type { Shape } from '@/types/shapes'
+import type { ProjectResponse } from './types/api'
 
 const shapes = ref<Shape[]>([])
+const currentProjectId = ref<number | null>(null)
+const hasUnsavedChanges = ref(false)
+
+const { createProject } = useProjects()
+
+// TODO: Remove 
+onMounted(async () => {
+  console.log('🚀 App mounted, creating temporary project...')
+  try {
+    const project  = await createProject('My Whiteboard') as ProjectResponse
+    currentProjectId.value = project.id
+    console.log('✅ Project created with ID:', project.id)
+  } catch (err) {
+    console.error('❌ Failed to create project:', err)
+  }
+})
+
+watch(shapes, () => {
+  hasUnsavedChanges.value = true
+}, { deep: true })
 
 const handleShapesUpdated = (updatedShapes: Shape[]) => {
   shapes.value = updatedShapes
+}
+
+const handleSaved = () => {
+  hasUnsavedChanges.value = false
 }
 </script>
 
 <template>
   <div class="app">
     <Theme />
-    <LeftPanel :shapes="shapes" />
-    <RightPanel @shapes-updated="handleShapesUpdated" />
+    <div class="header">
+      <SaveStatusIndicator 
+        :project-id="currentProjectId"
+        :shapes="shapes"
+        :has-unsaved-changes="hasUnsavedChanges"
+        @saved="handleSaved"
+      />
+    </div>
+    <div class="main-content">
+      <LeftPanel :shapes="shapes" />
+      <RightPanel @shapes-updated="handleShapesUpdated" />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .app {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   width: 100vw;
+  overflow: hidden;
+}
+
+.header {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-primary);
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
   overflow: hidden;
 }
 </style>
