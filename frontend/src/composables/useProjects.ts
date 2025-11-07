@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { apiClient } from './useApi'
+import { createErrorHandler } from './useErrorHandler'
 import type { ProjectResponse, ProjectWithSnapshotsResponse } from '@/types/api'
 
 const projects = ref<ProjectResponse[]>([])
@@ -8,9 +9,7 @@ const isLoading = ref(false)
 const error = ref<string | null>(null)
 
 export function useProjects() {
-  const setError = (err: unknown, fallback: string) => {
-    error.value = err instanceof Error ? err.message : fallback
-  }
+  const setErrorAndThrow = createErrorHandler(error)
 
   const fetchProjects = async () => {
     isLoading.value = true
@@ -20,8 +19,7 @@ export function useProjects() {
       projects.value = response.data
       return response.data
     } catch (err: unknown) {
-      setError(err, 'Failed to fetch projects')
-      throw err
+      setErrorAndThrow(err, 'Failed to fetch projects')
     } finally {
       isLoading.value = false
     }
@@ -34,8 +32,7 @@ export function useProjects() {
       const response = await apiClient.get<ProjectResponse>(`/projects/${id}`)
       return response.data
     } catch (err: unknown) {
-      setError(err, 'Failed to fetch project')
-      throw err
+      setErrorAndThrow(err, 'Failed to fetch project')
     } finally {
       isLoading.value = false
     }
@@ -49,8 +46,7 @@ export function useProjects() {
       currentProject.value = response.data
       return response.data
     } catch (err: unknown) {
-      setError(err, 'Failed to fetch latest project')
-      throw err
+      setErrorAndThrow(err, 'Failed to fetch latest project')
     } finally {
       isLoading.value = false
     }
@@ -63,8 +59,7 @@ export function useProjects() {
       const response = await apiClient.post<ProjectResponse>('/projects', { title })
       return response.data
     } catch (err: unknown) {
-      setError(err, 'Failed to create project')
-      throw err
+      setErrorAndThrow(err, 'Failed to create project')
     } finally {
       isLoading.value = false
     }
@@ -77,8 +72,7 @@ export function useProjects() {
       const response = await apiClient.patch<ProjectResponse>(`/projects/${id}`, { title })
       return response.data
     } catch (err: unknown) {
-      setError(err, 'Failed to update project')
-      throw err
+      setErrorAndThrow(err, 'Failed to update project')
     } finally {
       isLoading.value = false
     }
@@ -90,8 +84,7 @@ export function useProjects() {
     try {
       await apiClient.delete(`/projects/${id}`)
     } catch (err: unknown) {
-      setError(err, 'Failed to delete project')
-      throw err
+      setErrorAndThrow(err, 'Failed to delete project')
     } finally {
       isLoading.value = false
     }

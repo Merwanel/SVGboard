@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { apiClient } from './useApi'
+import { createErrorHandler } from './useErrorHandler'
 import type { SnapshotResponse } from '@/types/api'
 import type { Shape } from '@/types/shapes'
 
@@ -9,9 +10,7 @@ const isLoading = ref(false)
 const error = ref<string | null>(null)
 
 export function useSnapshots() {
-  const setError = (err: unknown, fallback: string) => {
-    error.value = err instanceof Error ? err.message : fallback
-  }
+  const setErrorAndThrow = createErrorHandler(error)
 
   const deserializeShapes = (shapesData: string): Shape[] => {
     try {
@@ -29,8 +28,7 @@ export function useSnapshots() {
       snapshots.value = response.data
       return response.data
     } catch (err: unknown) {
-      setError(err, 'Failed to fetch snapshots')
-      throw err
+      setErrorAndThrow(err, 'Failed to fetch snapshots')
     } finally {
       isLoading.value = false
     }
@@ -44,8 +42,7 @@ export function useSnapshots() {
       currentSnapshot.value = response.data
       return response.data
     } catch (err: unknown) {
-      setError(err, 'Failed to fetch snapshot')
-      throw err
+      setErrorAndThrow(err, 'Failed to fetch snapshot')
     } finally {
       isLoading.value = false
     }
