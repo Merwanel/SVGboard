@@ -1,5 +1,6 @@
 package com.merwanel.SVGboard.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.merwanel.SVGboard.entity.Project;
 import com.merwanel.SVGboard.entity.Snapshot;
 import com.merwanel.SVGboard.repository.ProjectRepository;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.IntStream;
 
@@ -19,6 +21,12 @@ import java.util.stream.IntStream;
 public abstract class BaseControllerTest {
 
     @Autowired
+    protected MockMvc mockMvc;
+
+    @Autowired
+    protected ObjectMapper objectMapper;
+
+    @Autowired
     protected ProjectRepository projectRepository;
 
     @Autowired
@@ -26,6 +34,8 @@ public abstract class BaseControllerTest {
 
     protected int NB_ENTRIES_PR = 5;
     protected int NB_ENTRIES_SS = 5;
+    
+    protected Project lastProject ;
 
     @BeforeEach
     void setUp() {
@@ -40,7 +50,7 @@ public abstract class BaseControllerTest {
 
     protected void createNBProjectWithSnapshots() {
         IntStream.range(0, NB_ENTRIES_PR).forEach(i -> {
-            createProjectWithSnapshots("project " + i, NB_ENTRIES_SS);
+            lastProject = createProjectWithSnapshots("project " + i, NB_ENTRIES_SS);
         });
     }
 
