@@ -6,23 +6,39 @@ import SaveStatusIndicator from './components/SaveStatusIndicator.vue'
 import Theme from './components/Theme.vue'
 import { useProjects } from '@/composables/useProjects'
 import type { Shape } from '@/types/shapes'
-import type { ProjectResponse } from './types/api'
 
 const shapes = ref<Shape[]>([])
 const currentProjectId = ref<number | null>(null)
 const hasUnsavedChanges = ref(false)
+const isLoading = ref(true)
 
-const { createProject } = useProjects()
+const { createProject, fetchLatestProject } = useProjects()
 
-// TODO: Remove 
 onMounted(async () => {
-  console.log('🚀 App mounted, creating temporary project...')
   try {
-    const project  = await createProject('My Whiteboard') as ProjectResponse
-    currentProjectId.value = project.id
-    console.log('✅ Project created with ID:', project.id)
+    const project = await fetchLatestProject()
+    if (project) {
+      currentProjectId.value = project.id
+      
+      if (project.snapshots && project.snapshots.length > 0) {
+        const latestSnapshot = project.snapshots[0]
+        if (latestSnapshot) {
+          const parsed = JSON.parse(latestSnapshot.shapesData)
+          shapes.value = Array.isArray(parsed) ? parsed : []
+        }
+      }
+    }
   } catch (err) {
-    console.error('❌ Failed to create project:', err)
+    try {
+      const newProject = await createProject('Untitled')
+      if (newProject) {
+        currentProjectId.value = newProject.id
+      }
+    } catch (createErr) {
+      console.error('Failed to create project:', createErr)
+    }
+  } finally {
+    isLoading.value = false
   }
 })
 
@@ -42,18 +58,21 @@ const handleSaved = () => {
 <template>
   <div class="app">
     <Theme />
-    <div class="header">
-      <SaveStatusIndicator 
-        :project-id="currentProjectId"
-        :shapes="shapes"
-        :has-unsaved-changes="hasUnsavedChanges"
-        @saved="handleSaved"
-      />
-    </div>
-    <div class="main-content">
-      <LeftPanel :shapes="shapes" />
-      <RightPanel @shapes-updated="handleShapesUpdated" />
-    </div>
+    <div v-if="isLoading" class="loading">Loading...</div>
+    <template v-else>
+      <div class="header">
+        <SaveStatusIndicator 
+          :project-id="currentProjectId"
+          :shapes="shapes"
+          :has-unsaved-changes="hasUnsavedChanges"
+          @saved="handleSaved"
+        />
+      </div>
+      <div class="main-content">
+        <LeftPanel :shapes="shapes" />
+        <RightPanel @shapes-updated="handleShapesUpdated" />
+      </div>
+    </template>
   </div>
 </template>
 
@@ -76,6 +95,15 @@ const handleSaved = () => {
   display: flex;
   flex: 1;
   overflow: hidden;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  font-size: 18px;
+  color: var(--text-secondary);
 }
 </style>
 

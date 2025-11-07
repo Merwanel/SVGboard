@@ -31,29 +31,18 @@ const statusText = computed(() => {
 })
 
 const handleSave = async () => {
-  console.log('🔵 Save clicked')
-  console.log('  projectId:', props.projectId)
-  console.log('  shapes:', props.shapes)
-  console.log('  hasUnsavedChanges:', props.hasUnsavedChanges)
-
   if (!props.projectId) {
-    console.log('❌ No projectId, aborting save')
+    console.log('no projectId, no save')
     return
   }
 
   isSaving.value = true
-  console.log('⏳ Saving...')
 
   try {
-    const result = await createSnapshot(props.projectId, props.shapes)
-    console.log('✅ Save successful:', result)
+    await createSnapshot(props.projectId, props.shapes)
     emit('saved')
-    console.log('📤 Emitted "saved" event')
-  } catch (err) {
-    console.log('❌ Save failed:', err)
   } finally {
     isSaving.value = false
-    console.log('🏁 Save complete, isSaving:', isSaving.value)
   }
 }
 </script>
