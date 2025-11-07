@@ -26,5 +26,17 @@ public class Project {
     
     @OneToMany
     @JoinColumn(name = "project_id")
+    @OrderBy("createdAt DESC")
     private List<Snapshot> snapshots = new ArrayList<>();
+    
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
