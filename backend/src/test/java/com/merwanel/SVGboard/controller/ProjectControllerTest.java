@@ -5,6 +5,7 @@ import com.merwanel.SVGboard.TestDataHelper;
 import com.merwanel.SVGboard.dto.ProjectRequest;
 import com.merwanel.SVGboard.repository.ProjectRepository;
 import com.merwanel.SVGboard.repository.SnapshotRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,13 @@ class ProjectControllerTest {
     void setUp() {
         snapshotRepository.deleteAll();
         projectRepository.deleteAll();
+        TestDataHelper.create5ProjectWithSnapshots(projectRepository, snapshotRepository);
+    }
+
+    @AfterEach
+    void tearDown() {
+        snapshotRepository.deleteAll();
+        projectRepository.deleteAll();
     }
 
     @Test
@@ -56,14 +64,12 @@ class ProjectControllerTest {
             .andExpect(jsonPath("$.title").value("Test Project"));
 
         var projects = projectRepository.findAll();
-        assertThat(projects).hasSize(1);
-        assertThat(projects.get(0).getTitle()).isEqualTo("Test Project");
+        assertThat(projects).hasSize(6); // 5 from setUp + 1 new
+        assertThat(projects.stream().filter(p -> p.getTitle().equals("Test Project")).count()).isEqualTo(1);
     }
 
     @Test
     void shouldGetAllProjects() throws Exception {
-        TestDataHelper.create5ProjectWithSnapshots(projectRepository, snapshotRepository);
-
         mockMvc.perform(
             get("/projects")
         )
