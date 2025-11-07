@@ -8,6 +8,10 @@ const isLoading = ref(false)
 const error = ref<string | null>(null)
 
 export function useProjects() {
+  const setError = (err: unknown, fallback: string) => {
+    error.value = err instanceof Error ? err.message : fallback
+  }
+
   const fetchProjects = async () => {
     isLoading.value = true
     error.value = null
@@ -16,7 +20,7 @@ export function useProjects() {
       projects.value = response.data
       return response.data
     } catch (err: unknown) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch projects'
+      setError(err, 'Failed to fetch projects')
       throw err
     } finally {
       isLoading.value = false
@@ -30,7 +34,7 @@ export function useProjects() {
       const response = await apiClient.get<ProjectResponse>(`/projects/${id}`)
       return response.data
     } catch (err: unknown) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch project'
+      setError(err, 'Failed to fetch project')
       throw err
     } finally {
       isLoading.value = false
@@ -45,7 +49,48 @@ export function useProjects() {
       currentProject.value = response.data
       return response.data
     } catch (err: unknown) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch latest project'
+      setError(err, 'Failed to fetch latest project')
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const createProject = async (title: string) => {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await apiClient.post<ProjectResponse>('/projects', { title })
+      return response.data
+    } catch (err: unknown) {
+      setError(err, 'Failed to create project')
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateProject = async (id: number, title: string) => {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await apiClient.patch<ProjectResponse>(`/projects/${id}`, { title })
+      return response.data
+    } catch (err: unknown) {
+      setError(err, 'Failed to update project')
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const deleteProject = async (id: number) => {
+    isLoading.value = true
+    error.value = null
+    try {
+      await apiClient.delete(`/projects/${id}`)
+    } catch (err: unknown) {
+      setError(err, 'Failed to delete project')
       throw err
     } finally {
       isLoading.value = false
@@ -59,6 +104,9 @@ export function useProjects() {
     error,
     fetchProjects,
     fetchProjectById,
-    fetchLatestProject
+    fetchLatestProject,
+    createProject,
+    updateProject,
+    deleteProject
   }
 }
