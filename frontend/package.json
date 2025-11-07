@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@highlightjs/vue-plugin": "^2.1.0",
+    "axios": "^1.13.2",
     "vue": "^3.5.22"
   },
   "devDependencies": {
