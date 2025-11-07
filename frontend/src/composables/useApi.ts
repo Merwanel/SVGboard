@@ -26,7 +26,7 @@ apiClient.interceptors.response.use(
   (error: AxiosError) => {
     if (error.response) {
       const status = error.response.status
-      const message = (error.response.data as any)?.message || error.message
+      const message = (error.response.data as { message?: string })?.message || error.message
 
       console.error(`API Error ${status}:`, message)
 

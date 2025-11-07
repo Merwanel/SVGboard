@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import CodeView from './CodeView.vue'
 import type { Shape } from '@/types/shapes'
 
-const props = defineProps<{
+defineProps<{
   shapes: Shape[]
 }>()
 

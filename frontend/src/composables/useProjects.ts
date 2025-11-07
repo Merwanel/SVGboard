@@ -15,8 +15,8 @@ export function useProjects() {
       const response = await apiClient.get<ProjectResponse[]>('/projects')
       projects.value = response.data
       return response.data
-    } catch (err: any) {
-      error.value = err.message || 'Failed to fetch projects'
+    } catch (err: unknown) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch projects'
       throw err
     } finally {
       isLoading.value = false
@@ -29,8 +29,8 @@ export function useProjects() {
     try {
       const response = await apiClient.get<ProjectResponse>(`/projects/${id}`)
       return response.data
-    } catch (err: any) {
-      error.value = err.message || 'Failed to fetch project'
+    } catch (err: unknown) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch project'
       throw err
     } finally {
       isLoading.value = false
@@ -44,8 +44,8 @@ export function useProjects() {
       const response = await apiClient.get<ProjectWithSnapshotsResponse>('/projects/latest')
       currentProject.value = response.data
       return response.data
-    } catch (err: any) {
-      error.value = err.message || 'Failed to fetch latest project'
+    } catch (err: unknown) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch latest project'
       throw err
     } finally {
       isLoading.value = false
