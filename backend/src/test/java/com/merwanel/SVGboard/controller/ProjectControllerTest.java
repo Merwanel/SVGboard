@@ -1,18 +1,10 @@
 package com.merwanel.SVGboard.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.merwanel.SVGboard.TestDataHelper;
 import com.merwanel.SVGboard.dto.ProjectRequest;
-import com.merwanel.SVGboard.repository.ProjectRepository;
-import com.merwanel.SVGboard.repository.SnapshotRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,35 +12,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-class ProjectControllerTest {
+class ProjectControllerTest extends BaseControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private SnapshotRepository snapshotRepository;
-
-    @BeforeEach
-    void setUp() {
-        snapshotRepository.deleteAll();
-        projectRepository.deleteAll();
-        TestDataHelper.create5ProjectWithSnapshots(projectRepository, snapshotRepository);
-    }
-
-    @AfterEach
-    void tearDown() {
-        snapshotRepository.deleteAll();
-        projectRepository.deleteAll();
-    }
 
     @Test
     void shouldCreateProject() throws Exception {
