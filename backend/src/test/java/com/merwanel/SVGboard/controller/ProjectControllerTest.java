@@ -1,9 +1,8 @@
 package com.merwanel.SVGboard.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.merwanel.SVGboard.TestDataHelper;
 import com.merwanel.SVGboard.dto.ProjectRequest;
-import com.merwanel.SVGboard.entity.Project;
-import com.merwanel.SVGboard.entity.Snapshot;
 import com.merwanel.SVGboard.repository.ProjectRepository;
 import com.merwanel.SVGboard.repository.SnapshotRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,8 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.util.stream.IntStream;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -65,7 +62,7 @@ class ProjectControllerTest {
 
     @Test
     void shouldGetAllProjects() throws Exception {
-        create5ProjectWithSnapshots() ;
+        TestDataHelper.create5ProjectWithSnapshots(projectRepository, snapshotRepository);
 
         mockMvc.perform(
             get("/projects")
@@ -73,24 +70,5 @@ class ProjectControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(5))
             .andExpect(jsonPath("$[0].title").value("project 0"));
-    }
-
-    private void create5ProjectWithSnapshots() {
-        IntStream.range(0, 5).forEach(i -> {
-            createProjectWithSnapshots("project " + i, 4 );
-        });
-    }
-
-    private void createProjectWithSnapshots(String title, int snapshotCount) {
-        Project project = new Project();
-        project.setTitle(title);
-        Project savedProject = projectRepository.save(project);
-
-        for (int i = 1; i <= snapshotCount; i++) {
-            Snapshot snapshot = new Snapshot();
-            snapshot.setProjectId(savedProject.getId());
-            snapshot.setShapesData("{\"shapes\": []}");
-            snapshotRepository.save(snapshot);
-        }
     }
 }
