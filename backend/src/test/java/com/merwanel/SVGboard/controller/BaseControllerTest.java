@@ -24,11 +24,12 @@ public abstract class BaseControllerTest {
     @Autowired
     protected SnapshotRepository snapshotRepository;
 
+    protected int NB_ENTRIES_PR = 5;
+    protected int NB_ENTRIES_SS = 5;
+
     @BeforeEach
     void setUp() {
-        snapshotRepository.deleteAll();
-        projectRepository.deleteAll();
-        create5ProjectWithSnapshots();
+        createNBProjectWithSnapshots();
     }
 
     @AfterEach
@@ -37,9 +38,9 @@ public abstract class BaseControllerTest {
         projectRepository.deleteAll();
     }
 
-    protected void create5ProjectWithSnapshots() {
-        IntStream.range(0, 5).forEach(i -> {
-            createProjectWithSnapshots("project " + i, 4);
+    protected void createNBProjectWithSnapshots() {
+        IntStream.range(0, NB_ENTRIES_PR).forEach(i -> {
+            createProjectWithSnapshots("project " + i, NB_ENTRIES_SS);
         });
     }
 

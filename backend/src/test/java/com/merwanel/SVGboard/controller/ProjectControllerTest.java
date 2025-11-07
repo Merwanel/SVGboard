@@ -34,7 +34,7 @@ class ProjectControllerTest extends BaseControllerTest {
             .andExpect(jsonPath("$.title").value("Test Project"));
 
         var projects = projectRepository.findAll();
-        assertThat(projects).hasSize(6); // 5 from setUp + 1 new
+        assertThat(projects).hasSize(NB_ENTRIES_PR + 1);
         assertThat(projects.stream().filter(p -> p.getTitle().equals("Test Project")).count()).isEqualTo(1);
     }
 
@@ -44,7 +44,7 @@ class ProjectControllerTest extends BaseControllerTest {
             get("/projects")
         )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.length()").value(5))
+            .andExpect(jsonPath("$.length()").value(NB_ENTRIES_PR))
             .andExpect(jsonPath("$[0].title").value("project 0"));
     }
 }
