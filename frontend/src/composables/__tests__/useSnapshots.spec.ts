@@ -18,7 +18,15 @@ describe('useSnapshots', () => {
     createdAt: '2025-11-06T12:00:00'
   }
 
-  const { fetchSnapshots, fetchSnapshotById, deserializeShapes } = useSnapshots()
+  const {
+    fetchSnapshots,
+    fetchSnapshotById,
+    deserializeShapes,
+    serializeShapes,
+    createSnapshot,
+    deleteSnapshot,
+    deleteAllSnapshots
+  } = useSnapshots()
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -47,5 +55,31 @@ describe('useSnapshots', () => {
   it('should return empty array for invalid JSON', () => {
     const shapes = deserializeShapes('invalid json')
     expect(shapes).toEqual([])
+  })
+
+  it('should serialize shapes to JSON string', () => {
+    const shapes = [{ id: 1, type: 'rectangle' as const, x: 10, y: 20, fill: '#000' }]
+    const shapesData = serializeShapes(shapes)
+
+    expect(shapesData).toBe('[{"id":1,"type":"rectangle","x":10,"y":20,"fill":"#000"}]')
+  })
+
+  it('should call POST /projects/:projectId/snapshots', async () => {
+    const shapes = [{ id: 1, type: 'rectangle' as const, x: 10, y: 20, fill: '#000' }]
+    await createSnapshot(1, shapes)
+
+    expect(apiClient.post).toHaveBeenCalledWith('/projects/1/snapshots', {
+      shapesData: '[{"id":1,"type":"rectangle","x":10,"y":20,"fill":"#000"}]'
+    })
+  })
+
+  it('should call DELETE /projects/:projectId/snapshots/:snapshotId', async () => {
+    await deleteSnapshot(1, 2)
+    expect(apiClient.delete).toHaveBeenCalledWith('/projects/1/snapshots/2')
+  })
+
+  it('should call DELETE /projects/:projectId/snapshots', async () => {
+    await deleteAllSnapshots(1)
+    expect(apiClient.delete).toHaveBeenCalledWith('/projects/1/snapshots')
   })
 })

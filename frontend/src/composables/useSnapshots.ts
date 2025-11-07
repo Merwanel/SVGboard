@@ -48,6 +48,48 @@ export function useSnapshots() {
     }
   }
 
+  const serializeShapes = (shapes: Shape[]): string => {
+    return JSON.stringify(shapes)
+  }
+
+  const createSnapshot = async (projectId: number, shapes: Shape[]) => {
+    isLoading.value = true
+    error.value = null
+    try {
+      const shapesData = serializeShapes(shapes)
+      const response = await apiClient.post<SnapshotResponse>(`/projects/${projectId}/snapshots`, { shapesData })
+      return response.data
+    } catch (err: unknown) {
+      setErrorAndThrow(err, 'Failed to create snapshot')
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const deleteSnapshot = async (projectId: number, snapshotId: number) => {
+    isLoading.value = true
+    error.value = null
+    try {
+      await apiClient.delete(`/projects/${projectId}/snapshots/${snapshotId}`)
+    } catch (err: unknown) {
+      setErrorAndThrow(err, 'Failed to delete snapshot')
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const deleteAllSnapshots = async (projectId: number) => {
+    isLoading.value = true
+    error.value = null
+    try {
+      await apiClient.delete(`/projects/${projectId}/snapshots`)
+    } catch (err: unknown) {
+      setErrorAndThrow(err, 'Failed to delete all snapshots')
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     snapshots,
     currentSnapshot,
@@ -55,6 +97,10 @@ export function useSnapshots() {
     error,
     fetchSnapshots,
     fetchSnapshotById,
-    deserializeShapes
+    deserializeShapes,
+    serializeShapes,
+    createSnapshot,
+    deleteSnapshot,
+    deleteAllSnapshots
   }
 }
