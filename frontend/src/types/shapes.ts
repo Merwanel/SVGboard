@@ -2,12 +2,25 @@ export type ShapeType = 'rectangle' | 'circle' | 'line' | 'ellipse'
 
 export type Tool = ShapeType | 'select'
 
-export type AnimationType = 'rotate' | 'scale' | 'fade'
+export type AnimationType = 'rotate' | 'scale' | 'fade' | 'translate'
 
 export interface Animation {
   type: AnimationType
   duration: number
   loop: boolean
+}
+
+export interface AnimationTrack {
+  id: number
+  type: AnimationType
+  startTime: number
+  duration: number
+  values: {
+    from?: number | string
+    to?: number | string
+    x?: number
+    y?: number
+  }
 }
 
 export interface Shape {
@@ -26,4 +39,6 @@ export interface Shape {
   stroke?: string
   strokeWidth?: number
   animation?: Animation
+  animations?: AnimationTrack[]
+  totalDuration?: number
 }
