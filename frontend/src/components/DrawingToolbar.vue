@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import WhiteboardCanvas from './WhiteboardCanvas.vue'
-import type { Shape, ShapeType } from '@/types/shapes'
+import type { Shape, Tool } from '@/types/shapes'
 
 defineProps<{
   shapes: Shape[]
 }>()
 
 const isCollapsed = ref(false)
-const selectedTool = ref<ShapeType | null>(null)
+const selectedTool = ref<Tool>('select')
 const strokeColor = ref('#000000')
 const fillColor = ref('#42b983')
 const noFill = ref(true)
@@ -17,8 +17,8 @@ const emit = defineEmits<{
   shapesUpdated: [shapes: Shape[]]
 }>()
 
-const selectTool = (tool: ShapeType) => {
-  selectedTool.value = selectedTool.value === tool ? null : tool
+const selectTool = (tool: Tool) => {
+  selectedTool.value = tool
 }
 
 const toggleCollapse = () => {
@@ -37,6 +37,14 @@ const handleShapesUpdated = (shapes: Shape[]) => {
         {{ isCollapsed ? '▼' : '▲' }}
       </button>
       <div class="tools" v-show="!isCollapsed">
+        <button 
+          class="tool-btn"
+          :class="{ active: selectedTool === 'select' }"
+          @click="selectTool('select')"
+          title="Select"
+        >
+          ↖
+        </button>
         <button 
           class="tool-btn"
           :class="{ active: selectedTool === 'rectangle' }"

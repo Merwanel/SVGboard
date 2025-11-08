@@ -1,5 +1,7 @@
 export type ShapeType = 'rectangle' | 'circle' | 'line' | 'ellipse'
 
+export type Tool = ShapeType | 'select'
+
 export type AnimationType = 'rotate' | 'scale' | 'fade'
 
 export interface Animation {

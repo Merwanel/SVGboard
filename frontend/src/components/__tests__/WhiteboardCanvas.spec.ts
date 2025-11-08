@@ -16,7 +16,7 @@ describe('WhiteboardCanvas', () => {
   it('shows resize handles when shape is selected', async () => {
     const wrapper = mount(WhiteboardCanvas, {
       props: {
-        selectedTool: null,
+        selectedTool: 'select',
         strokeColor: '#000000',
         fillColor: '#42b983',
         initialShapes: [mockShape]
@@ -37,7 +37,7 @@ describe('WhiteboardCanvas', () => {
     
     const wrapper = mount(WhiteboardCanvas, {
       props: {
-        selectedTool: null,
+        selectedTool: 'select',
         strokeColor: '#000000',
         fillColor: '#42b983',
         initialShapes: [{ ...mockShape }]

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { Shape, ShapeType } from '@/types/shapes'
+import type { Shape, ShapeType, Tool } from '@/types/shapes'
 
 const props = defineProps<{
-  selectedTool: ShapeType | null
+  selectedTool: Tool
   strokeColor: string
   fillColor: string
   initialShapes: Shape[]
@@ -34,13 +34,21 @@ watch(() => props.initialShapes, (newShapes) => {
 }, { deep: true })
 
 const handleCanvasClick = (event: MouseEvent) => {
+  // Only handle clicks directly on the canvas background, not on shapes
+  if (event.target !== event.currentTarget) {
+    return
+  }
+  
   // Ignore clicks that were actually drag operations 
   // (click seems to trigger after mouseup)
   if (hasMoved.value) {
     hasMoved.value = false
     return 
   }
-  if (!props.selectedTool) return
+  if (props.selectedTool === 'select') {
+    selectedShape.value = null
+    return
+  }
 
   const svg = event.currentTarget as SVGElement
   const rect = svg.getBoundingClientRect()
@@ -49,7 +57,7 @@ const handleCanvasClick = (event: MouseEvent) => {
 
   const newShape: Shape = {
     id: nextId++,
-    type: props.selectedTool,
+    type: props.selectedTool as ShapeType,
     x,
     y,
     fill: props.fillColor,
