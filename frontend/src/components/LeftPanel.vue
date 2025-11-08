@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import CodeView from './CodeView.vue'
 import HistoryView from './HistoryView.vue'
+import SvgPreview from './SvgPreview.vue' // TODO: delete
 import type { Shape } from '@/types/shapes'
 
 defineProps<{
@@ -27,6 +28,14 @@ const setView = (view: 'code' | 'history' | 'browser') => {
 const handleRestore = (snapshotId: number, shapesData: string) => {
   emit('restore', snapshotId, shapesData)
 }
+
+// TODO: delete
+const testShapesData = JSON.stringify([
+  { id: 1, type: 'rectangle', x: 50, y: 50, width: 150, height: 100, fill: '#ff6b6b' },
+  { id: 2, type: 'circle', x: 300, y: 150, radius: 60, fill: '#4ecdc4' },
+  { id: 3, type: 'ellipse', x: 500, y: 200, radiusX: 80, radiusY: 40, fill: '#45b7d1' },
+  { id: 4, type: 'line', x: 100, y: 400, x2: 400, y2: 500, fill: '#f9ca24' }
+])
 </script>
 
 <template>
@@ -64,6 +73,17 @@ const handleRestore = (snapshotId: number, shapesData: string) => {
         />
         <div v-else class="placeholder">
           <p>browser</p>
+          <!-- TODO: delete -->
+          <div style="margin-top: 2rem;">
+            <h3 style="margin-bottom: 1rem;">Large Preview:</h3>
+            <SvgPreview :shapes-data="testShapesData" size="large" />
+            
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Small Preview:</h3>
+            <SvgPreview :shapes-data="testShapesData" size="small" />
+            
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Empty Preview:</h3>
+            <SvgPreview shapes-data="" size="large" />
+          </div>
         </div>
       </div>
     </div>
