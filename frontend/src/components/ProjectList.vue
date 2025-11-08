@@ -151,7 +151,7 @@ const formatDate = (dateString: string): string => {
 
 .search-input:focus {
   outline: none;
-  border-color: #42b983;
+  border-color: var(--action-color);
 }
 
 .loading,
@@ -257,12 +257,12 @@ const formatDate = (dateString: string): string => {
 
 .project-input:focus {
   outline: none;
-  border-color: #42b983;
+  border-color: var(--action-color);
 }
 
 .create-btn {
   padding: 0.75rem 1.5rem;
-  background: #42b983;
+  background: var(--action-color);
   color: white;
   border: none;
   border-radius: 4px;
@@ -274,6 +274,6 @@ const formatDate = (dateString: string): string => {
 }
 
 .create-btn:hover {
-  background: #35a372;
+  background: var(--action-color-hover);
 }
 </style>

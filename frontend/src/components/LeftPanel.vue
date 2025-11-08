@@ -121,12 +121,12 @@ const handleCreateProject = (title: string) => {
 }
 
 .tab:hover {
-  color: #42b983;
+  color: var(--action-color);
 }
 
 .tab.active {
-  color: #42b983;
-  border-bottom-color: #42b983;
+  color: var(--action-color);
+  border-bottom-color: var(--action-color);
   font-weight: 600;
 }
 
@@ -141,7 +141,7 @@ const handleCreateProject = (title: string) => {
   position: absolute;
   top: 1rem;
   right: 0.5rem;
-  background: #42b983;
+  background: var(--action-color);
   color: white;
   border: none;
   border-radius: 4px;
@@ -156,6 +156,6 @@ const handleCreateProject = (title: string) => {
 }
 
 .collapse-btn:hover {
-  background: #35a372;
+  background: var(--action-color-hover);
 }
 </style>

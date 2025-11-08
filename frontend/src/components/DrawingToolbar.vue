@@ -100,7 +100,7 @@ const handleShapesUpdated = (shapes: Shape[]) => {
 }
 
 .collapse-btn {
-  background: #42b983;
+  background: var(--action-color);
   color: white;
   border: none;
   border-radius: 4px;
@@ -112,7 +112,7 @@ const handleShapesUpdated = (shapes: Shape[]) => {
 }
 
 .collapse-btn:hover {
-  background: #35a372;
+  background: var(--action-color-hover);
 }
 
 .tools {
@@ -133,13 +133,13 @@ const handleShapesUpdated = (shapes: Shape[]) => {
 }
 
 .tool-btn:hover {
-  border-color: #42b983;
+  border-color: var(--action-color);
   background: var(--bg-secondary);
 }
 
 .tool-btn.active {
-  background: #42b983;
+  background: var(--action-color);
   color: white;
-  border-color: #42b983;
+  border-color: var(--action-color);
 }
 </style>

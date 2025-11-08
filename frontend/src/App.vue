@@ -210,6 +210,10 @@ const handleCreateProject = async (title: string) => {
   --border-color: #e0e0e0;
   --theme-toggle-bg: #ffffff;
   --theme-toggle-color: #333333;
+  --action-color: #42b983;
+  --action-color-hover: #35a372;
+  --action-color-light: rgba(66, 185, 131, 0.05);
+  --action-color-medium: rgba(66, 185, 131, 0.1);
 }
 
 :root[data-theme="dark"] {
@@ -220,6 +224,10 @@ const handleCreateProject = async (title: string) => {
   --border-color: #404040;
   --theme-toggle-bg: #2d2d2d;
   --theme-toggle-color: #e0e0e0;
+  --action-color: #42b983;
+  --action-color-hover: #35a372;
+  --action-color-light: rgba(66, 185, 131, 0.05);
+  --action-color-medium: rgba(66, 185, 131, 0.1);
 }
 
 :root[data-theme="solar"] {
@@ -230,6 +238,10 @@ const handleCreateProject = async (title: string) => {
   --border-color: #d3cbb7;
   --theme-toggle-bg: #eee8d5;
   --theme-toggle-color: #b58900;
+  --action-color: #42b983;
+  --action-color-hover: #35a372;
+  --action-color-light: rgba(66, 185, 131, 0.05);
+  --action-color-medium: rgba(66, 185, 131, 0.1);
 }
 
 body {

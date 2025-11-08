@@ -48,7 +48,7 @@ const handleCanvasClick = (event: MouseEvent) => {
     type: props.selectedTool,
     x,
     y,
-    fill: '#42b983'
+    fill: 'var(--action-color)'
   }
 
   if (props.selectedTool === 'rectangle') {

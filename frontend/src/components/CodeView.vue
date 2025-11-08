@@ -101,7 +101,7 @@ h3 {
 }
 
 .copy-btn {
-  background: #42b983;
+  background: var(--action-color);
   color: white;
   border: none;
   border-radius: 4px;
@@ -112,7 +112,7 @@ h3 {
 }
 
 .copy-btn:hover {
-  background: #35a372;
+  background: var(--action-color-hover);
 }
 
 .code-container {
