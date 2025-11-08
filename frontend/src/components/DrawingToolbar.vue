@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import WhiteboardCanvas from './WhiteboardCanvas.vue'
-import type { Shape, Tool } from '@/types/shapes'
+import AnimationPanel from './AnimationPanel.vue'
+import type { Shape, Tool, AnimationType } from '@/types/shapes'
 
-defineProps<{
+const props = defineProps<{
   shapes: Shape[]
 }>()
 
@@ -12,6 +13,7 @@ const selectedTool = ref<Tool>('select')
 const strokeColor = ref('#000000')
 const fillColor = ref('#42b983')
 const noFill = ref(true)
+const selectedShapeId = ref<number | null>(null)
 
 const emit = defineEmits<{
   shapesUpdated: [shapes: Shape[]]
@@ -27,6 +29,22 @@ const toggleCollapse = () => {
 
 const handleShapesUpdated = (shapes: Shape[]) => {
   emit('shapesUpdated', shapes)
+}
+
+const handleShapeSelected = (shapeId: number | null) => {
+  selectedShapeId.value = shapeId
+}
+
+const handleApplyAnimation = (shapeId: number, type: AnimationType, duration: number, loop: boolean) => {
+  const updatedShapes = props.shapes.map((s: Shape) => {
+    if (s.id === shapeId) {
+      return { ...s, animation: { type, duration, loop } }
+    }
+    return s
+  })
+  // TODO : delete
+  console.log('Animation applied:', updatedShapes.find(s => s.id === shapeId))
+  emit('shapesUpdated', updatedShapes)
 }
 </script>
 
@@ -110,6 +128,11 @@ const handleShapesUpdated = (shapes: Shape[]) => {
       :fill-color="noFill ? 'none' : fillColor"
       :initial-shapes="shapes"
       @shapes-updated="handleShapesUpdated"
+      @shape-selected="handleShapeSelected"
+    />
+    <AnimationPanel 
+      :selected-shape-id="selectedShapeId"
+      @apply-animation="handleApplyAnimation"
     />
   </div>
 </template>

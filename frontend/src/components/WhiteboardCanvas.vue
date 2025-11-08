@@ -24,6 +24,7 @@ let nextId = props.initialShapes.length > 0
 
 const emit = defineEmits<{
   shapesUpdated: [shapes: Shape[]]
+  shapeSelected: [shapeId: number | null]
 }>()
 
 watch(() => props.initialShapes, (newShapes) => {
@@ -47,6 +48,7 @@ const handleCanvasClick = (event: MouseEvent) => {
   }
   if (props.selectedTool === 'select') {
     selectedShape.value = null
+    emit('shapeSelected', null)
     return
   }
 
@@ -87,6 +89,7 @@ const startDrag = (event: MouseEvent, shapeId: number) => {
   if (!shape) return
 
   selectedShape.value = shapeId
+  emit('shapeSelected', shapeId)
 
   const svg = (event.currentTarget as SVGElement).ownerSVGElement || (event.currentTarget as SVGElement)
   const rect = svg.getBoundingClientRect()
@@ -138,8 +141,13 @@ const handleDrag = (event: MouseEvent) => {
 }
 
 const stopDrag = () => {
+  // Don't clear selection when stopping drag
   draggingShape.value = null
   resizingShape.value = null
+  // Reset hasMoved after a short delay to allow click handler to check it
+  setTimeout(() => {
+    hasMoved.value = false
+  }, 0)
 }
 
 const startResize = (event: MouseEvent, shapeId: number, handle: string) => {
