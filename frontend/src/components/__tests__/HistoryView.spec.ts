@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { ref } from 'vue'
 import HistoryView from '../HistoryView.vue'
 import { useSnapshots } from '@/composables/useSnapshots'
 
@@ -9,23 +10,23 @@ vi.mock('@/composables/useSnapshots', () => ({
 
 describe('HistoryView', () => {
   const mockFetchSnapshots = vi.fn()
-  let wrapper: any
+  let wrapper: ReturnType<typeof mount>
 
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(useSnapshots).mockReturnValue({
       fetchSnapshots: mockFetchSnapshots,
-      snapshots: { value: [] },
-      currentSnapshot: { value: null },
-      isLoading: { value: false },
-      error: { value: null },
+      snapshots: ref([]),
+      currentSnapshot: ref(null),
+      isLoading: ref(false),
+      error: ref(null),
       fetchSnapshotById: vi.fn(),
       deserializeShapes: vi.fn(),
       serializeShapes: vi.fn(),
       createSnapshot: vi.fn(),
       deleteSnapshot: vi.fn(),
       deleteAllSnapshots: vi.fn()
-    } as any)
+    })
 
     wrapper = mount(HistoryView, {
       props: { projectId: 1 }

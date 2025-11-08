@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { ref } from 'vue'
 import SaveStatusIndicator from '../SaveStatusIndicator.vue'
 import { useSnapshots } from '@/composables/useSnapshots'
+import type { Shape, ShapeType } from '@/types/shapes'
 
 vi.mock('@/composables/useSnapshots', () => ({
   useSnapshots: vi.fn()
@@ -10,7 +12,7 @@ vi.mock('@/composables/useSnapshots', () => ({
 describe('SaveStatusIndicator', () => {
   const mockCreateSnapshot = vi.fn()
 
-  const createWrapper = (hasUnsavedChanges: boolean, shapes: any[] = []) => {
+  const createWrapper = (hasUnsavedChanges: boolean, shapes: Shape[] = []) => {
     return mount(SaveStatusIndicator, {
       props: {
         projectId: 1,
@@ -24,17 +26,17 @@ describe('SaveStatusIndicator', () => {
     vi.clearAllMocks()
     vi.mocked(useSnapshots).mockReturnValue({
       createSnapshot: mockCreateSnapshot,
-      error: { value: null },
-      snapshots: { value: [] },
-      currentSnapshot: { value: null },
-      isLoading: { value: false },
+      error: ref(null),
+      snapshots: ref([]),
+      currentSnapshot: ref(null),
+      isLoading: ref(false),
       fetchSnapshots: vi.fn(),
       fetchSnapshotById: vi.fn(),
       deserializeShapes: vi.fn(),
       serializeShapes: vi.fn(),
       deleteSnapshot: vi.fn(),
       deleteAllSnapshots: vi.fn()
-    } as any)
+    })
   })
 
   it('should hide save button when no unsaved changes', () => {
@@ -54,7 +56,7 @@ describe('SaveStatusIndicator', () => {
   it('should call createSnapshot when save button clicked', async () => {
     mockCreateSnapshot.mockResolvedValue({})
 
-    const shapes = [{ id: 1, type: 'rectangle', x: 10, y: 20, fill: '#000' }]
+    const shapes = [{ id: 1, type: 'rectangle' as ShapeType, x: 10, y: 20, fill: '#000' }]
     const wrapper = createWrapper(true, shapes)
 
     await wrapper.find('.save-button').trigger('click')

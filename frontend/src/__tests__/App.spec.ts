@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { ref } from 'vue'
 import App from '../App.vue'
 import { useProjects } from '@/composables/useProjects'
 
@@ -27,11 +28,11 @@ describe('App', () => {
       fetchProjectById: vi.fn(),
       updateProject: vi.fn(),
       deleteProject: vi.fn(),
-      projects: { value: [] },
-      currentProject: { value: null },
-      isLoading: { value: false },
-      error: { value: null }
-    } as any)
+      projects: ref([]),
+      currentProject: ref(null),
+      isLoading: ref(false),
+      error: ref(null)
+    })
   })
 
   it('should load latest project on mount', async () => {

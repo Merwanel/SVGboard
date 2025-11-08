@@ -35,7 +35,7 @@ onMounted(async () => {
         currentProjectId.value = newProject.id
       }
     } catch (createErr) {
-      console.error('Failed to create project:', createErr)
+      console.error('Failed to create project:', err, createErr)
     }
   } finally {
     isLoading.value = false

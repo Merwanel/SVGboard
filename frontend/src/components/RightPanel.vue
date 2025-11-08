@@ -2,7 +2,7 @@
 import DrawingToolbar from './DrawingToolbar.vue'
 import type { Shape } from '@/types/shapes'
 
-const props = defineProps<{
+defineProps<{
   shapes: Shape[]
 }>()
 
