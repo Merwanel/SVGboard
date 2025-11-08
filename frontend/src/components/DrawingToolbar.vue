@@ -9,6 +9,7 @@ defineProps<{
 
 const isCollapsed = ref(false)
 const selectedTool = ref<ShapeType | null>(null)
+const strokeColor = ref('#000000')
 
 const emit = defineEmits<{
   shapesUpdated: [shapes: Shape[]]
@@ -66,10 +67,21 @@ const handleShapesUpdated = (shapes: Shape[]) => {
         >
           ⬭
         </button>
+        <div class="color-picker-wrapper">
+          <label for="stroke-color" class="color-label">Stroke</label>
+          <input 
+            id="stroke-color"
+            type="color" 
+            v-model="strokeColor"
+            class="color-picker"
+            title="Stroke color"
+          />
+        </div>
       </div>
     </div>
     <WhiteboardCanvas 
       :selected-tool="selectedTool"
+      :stroke-color="strokeColor"
       :initial-shapes="shapes"
       @shapes-updated="handleShapesUpdated"
     />
@@ -140,6 +152,31 @@ const handleShapesUpdated = (shapes: Shape[]) => {
 .tool-btn.active {
   background: var(--action-color);
   color: white;
+  border-color: var(--action-color);
+}
+
+.color-picker-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.color-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.color-picker {
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  background: none;
+}
+
+.color-picker:hover {
   border-color: var(--action-color);
 }
 </style>

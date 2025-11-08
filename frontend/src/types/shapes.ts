@@ -13,4 +13,6 @@ export interface Shape {
   x2?: number
   y2?: number
   fill: string
+  stroke?: string
+  strokeWidth?: number
 }

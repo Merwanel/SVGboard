@@ -4,6 +4,7 @@ import type { Shape, ShapeType } from '@/types/shapes'
 
 const props = defineProps<{
   selectedTool: ShapeType | null
+  strokeColor: string
   initialShapes: Shape[]
 }>()
 
@@ -50,7 +51,8 @@ const handleCanvasClick = (event: MouseEvent) => {
     type: props.selectedTool,
     x,
     y,
-    fill: 'var(--action-color)'
+    fill: 'var(--action-color)',
+    stroke: props.strokeColor
   }
 
   if (props.selectedTool === 'rectangle') {
@@ -236,6 +238,8 @@ const getResizeHandles = (shape: Shape) => {
       :width="shape.width"
       :height="shape.height"
       :fill="shape.fill"
+      :stroke="shape.stroke"
+      :stroke-width="shape.strokeWidth || 2"
       class="shape"
       @mousedown="startDrag($event, shape.id)"
     />
@@ -246,6 +250,8 @@ const getResizeHandles = (shape: Shape) => {
       :cy="shape.y"
       :r="shape.radius"
       :fill="shape.fill"
+      :stroke="shape.stroke"
+      :stroke-width="shape.strokeWidth || 2"
       class="shape"
       @mousedown="startDrag($event, shape.id)"
     />
@@ -256,8 +262,8 @@ const getResizeHandles = (shape: Shape) => {
       :y1="shape.y"
       :x2="shape.x2"
       :y2="shape.y2"
-      stroke="#42b983"
-      stroke-width="3"
+      :stroke="shape.stroke || '#42b983'"
+      :stroke-width="shape.strokeWidth || 3"
       class="shape"
       @mousedown="startDrag($event, shape.id)"
     />
@@ -269,6 +275,8 @@ const getResizeHandles = (shape: Shape) => {
       :rx="shape.radiusX"
       :ry="shape.radiusY"
       :fill="shape.fill"
+      :stroke="shape.stroke"
+      :stroke-width="shape.strokeWidth || 2"
       class="shape"
       @mousedown="startDrag($event, shape.id)"
     />
