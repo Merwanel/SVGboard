@@ -24,7 +24,7 @@ onMounted(async () => {
         const latestSnapshot = project.snapshots[0]
         if (latestSnapshot) {
           const parsed = JSON.parse(latestSnapshot.shapesData)
-          shapes.value = Array.isArray(parsed) ? parsed : []
+          shapes.value = Array.isArray(parsed) ? parsed : (parsed.shapes || [])
         }
       }
     }
@@ -53,6 +53,12 @@ const handleShapesUpdated = (updatedShapes: Shape[]) => {
 const handleSaved = () => {
   hasUnsavedChanges.value = false
 }
+
+const handleRestore = (snapshotId: number, shapesData: string) => {
+  const parsed = JSON.parse(shapesData)
+  shapes.value = Array.isArray(parsed) ? parsed : (parsed.shapes || [])
+  hasUnsavedChanges.value = false
+}
 </script>
 
 <template>
@@ -69,8 +75,12 @@ const handleSaved = () => {
         />
       </div>
       <div class="main-content">
-        <LeftPanel :shapes="shapes" />
-        <RightPanel @shapes-updated="handleShapesUpdated" />
+        <LeftPanel 
+          :shapes="shapes" 
+          :project-id="currentProjectId"
+          @restore="handleRestore"
+        />
+        <RightPanel :shapes="shapes" @shapes-updated="handleShapesUpdated" />
       </div>
     </template>
   </div>

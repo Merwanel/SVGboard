@@ -1,23 +1,33 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { Shape, ShapeType } from '@/types/shapes'
 
 const props = defineProps<{
   selectedTool: ShapeType | null
+  initialShapes: Shape[]
 }>()
 
 const DRAG_THRESHOLD = 3
 
-const shapes = ref<Shape[]>([])
+const shapes = ref<Shape[]>([...props.initialShapes])
 const draggingShape = ref<number | null>(null)
 const dragOffset = ref({ x:-1, y: -1 })
 const dragStartPos = ref({ x: 0, y: 0 })
 const hasMoved = ref(false)
-let nextId = 1
+let nextId = props.initialShapes.length > 0 
+  ? Math.max(...props.initialShapes.map(s => s.id)) + 1 
+  : 1
 
 const emit = defineEmits<{
   shapesUpdated: [shapes: Shape[]]
 }>()
+
+watch(() => props.initialShapes, (newShapes) => {
+  shapes.value = [...newShapes]
+  if (newShapes.length > 0) {
+    nextId = Math.max(...newShapes.map(s => s.id)) + 1
+  }
+}, { deep: true })
 
 const handleCanvasClick = (event: MouseEvent) => {
   // Ignore clicks that were actually drag operations 

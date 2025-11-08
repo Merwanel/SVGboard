@@ -2,6 +2,10 @@
 import DrawingToolbar from './DrawingToolbar.vue'
 import type { Shape } from '@/types/shapes'
 
+const props = defineProps<{
+  shapes: Shape[]
+}>()
+
 const emit = defineEmits<{
   shapesUpdated: [shapes: Shape[]]
 }>()
@@ -13,7 +17,7 @@ const handleShapesUpdated = (shapes: Shape[]) => {
 
 <template>
   <div class="right-panel">
-    <DrawingToolbar @shapes-updated="handleShapesUpdated" />
+    <DrawingToolbar :shapes="shapes" @shapes-updated="handleShapesUpdated" />
   </div>
 </template>
 

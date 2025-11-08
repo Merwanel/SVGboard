@@ -3,6 +3,10 @@ import { ref } from 'vue'
 import WhiteboardCanvas from './WhiteboardCanvas.vue'
 import type { Shape, ShapeType } from '@/types/shapes'
 
+defineProps<{
+  shapes: Shape[]
+}>()
+
 const isCollapsed = ref(false)
 const selectedTool = ref<ShapeType | null>(null)
 
@@ -66,6 +70,7 @@ const handleShapesUpdated = (shapes: Shape[]) => {
     </div>
     <WhiteboardCanvas 
       :selected-tool="selectedTool"
+      :initial-shapes="shapes"
       @shapes-updated="handleShapesUpdated"
     />
   </div>

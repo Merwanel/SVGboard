@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import CodeView from './CodeView.vue'
+import HistoryView from './HistoryView.vue'
 import type { Shape } from '@/types/shapes'
 
 defineProps<{
   shapes: Shape[]
+  projectId: number | null
+}>()
+
+const emit = defineEmits<{
+  restore: [snapshotId: number, shapesData: string]
 }>()
 
 const isCollapsed = ref(false)
@@ -16,6 +22,10 @@ const toggleCollapse = () => {
 
 const setView = (view: 'code' | 'history' | 'browser') => {
   activeView.value = view
+}
+
+const handleRestore = (snapshotId: number, shapesData: string) => {
+  emit('restore', snapshotId, shapesData)
 }
 </script>
 
@@ -47,9 +57,11 @@ const setView = (view: 'code' | 'history' | 'browser') => {
       </div>
       <div class="view-content">
         <CodeView v-if="activeView === 'code'" :shapes="shapes" />
-        <div v-else-if="activeView === 'history'" class="placeholder">
-          <p>History view</p>
-        </div>
+        <HistoryView 
+          v-else-if="activeView === 'history'" 
+          :project-id="projectId"
+          @restore="handleRestore"
+        />
         <div v-else class="placeholder">
           <p>browser</p>
         </div>
