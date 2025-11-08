@@ -7,6 +7,7 @@ const props = defineProps<{
 }>()
 
 const copied = ref(false)
+const isExpanded = ref(false)
 
 const svgCode = computed(() => {
   let code = '<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">\n'
@@ -44,11 +45,18 @@ const copyToClipboard = async () => {
   <div class="code-view">
     <div class="header">
       <h3>SVG Code</h3>
-      <button class="copy-btn" @click="copyToClipboard">
-        {{ copied ? '✓ Copied!' : 'Copy' }}
-      </button>
+      <div class="header-buttons">
+        <button class="expand-btn" @click="isExpanded = !isExpanded" :title="isExpanded ? 'Collapse' : 'Expand'">
+          {{ isExpanded ? '←' : '→' }}
+        </button>
+        <button class="copy-btn" @click="copyToClipboard">
+          {{ copied ? '✓ Copied!' : 'Copy' }}
+        </button>
+      </div>
     </div>
-    <highlightjs language='xml' :code="svgCode" class="code" />
+    <div class="code-container" :class="{ expanded: isExpanded }">
+      <highlightjs language='xml' :code="svgCode" class="code" />
+    </div>
   </div>
 </template>
 
@@ -72,6 +80,26 @@ h3 {
   color: #333;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.expand-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease;
+}
+
+.expand-btn:hover {
+  background: #5a6268;
+}
+
 .copy-btn {
   background: #42b983;
   color: white;
@@ -87,9 +115,17 @@ h3 {
   background: #35a372;
 }
 
-.code {
+.code-container {
   flex: 1;
   overflow: auto;
+  position: relative;
+}
+
+.code-container.expanded {
+  overflow: visible;
+}
+
+.code {
   background: #282c34;
   color: #abb2bf;
   padding: 1rem;
@@ -98,6 +134,16 @@ h3 {
   font-size: 0.875rem;
   line-height: 1.5;
   border-radius: 4px;
+  white-space: pre;
+}
+
+.code-container.expanded .code {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: max-content;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 code {
