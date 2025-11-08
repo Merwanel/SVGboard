@@ -1,5 +1,13 @@
 export type ShapeType = 'rectangle' | 'circle' | 'line' | 'ellipse'
 
+export type AnimationType = 'rotate' | 'scale' | 'fade'
+
+export interface Animation {
+  type: AnimationType
+  duration: number
+  loop: boolean
+}
+
 export interface Shape {
   id: number
   type: ShapeType
@@ -15,4 +23,5 @@ export interface Shape {
   fill: string
   stroke?: string
   strokeWidth?: number
+  animation?: Animation
 }
