@@ -21,7 +21,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     
     public List<ProjectResponse> getAllProjects() {
-        return projectRepository.findAll().stream()
+        return projectRepository.findAllByOrderByUpdatedAtDesc().stream()
         .map(this::toResponse)
         .collect(Collectors.toList());
     }
@@ -38,7 +38,7 @@ public class ProjectService {
     
     
     public ProjectWithSnapshotsResponse getLatestProjectWithSnapshots() {
-        Project project = projectRepository.findFirstByOrderByCreatedAtDesc()
+        Project project = projectRepository.findFirstByOrderByUpdatedAtDesc()
                 .orElseThrow(() -> new RuntimeException("No projects found"));
         return toResponseWithSnapshots(project);
     }

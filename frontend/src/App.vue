@@ -14,22 +14,27 @@ const hasUnsavedChanges = ref(false)
 const isLoading = ref(true)
 
 const { 
-  createProject, fetchLatestProject, fetchProjectById, deleteProject, fetchProjects 
+  createProject, fetchLatestProject, fetchProjectById, deleteProject, fetchProjects, projects 
 } = useProjects()
-const { fetchSnapshots } = useSnapshots()
+const { fetchSnapshots, createSnapshot } = useSnapshots()
 
 onMounted(async () => {
+  
   try {
     const project = await fetchLatestProject()
     if (project) {
       currentProjectId.value = project.id
       
+      // Load shapes from latest snapshot
       if (project.snapshots && project.snapshots.length > 0) {
         const latestSnapshot = project.snapshots[0]
         if (latestSnapshot) {
           const parsed = JSON.parse(latestSnapshot.shapesData)
           shapes.value = Array.isArray(parsed) ? parsed : (parsed.shapes || [])
         }
+      } else {
+        // No snapshots, canvas stays empty
+        shapes.value = []
       }
     }
   } catch (err) {
@@ -37,6 +42,7 @@ onMounted(async () => {
       const newProject = await createProject('Untitled')
       if (newProject) {
         currentProjectId.value = newProject.id
+        shapes.value = []
       }
     } catch (createErr) {
       console.error('Failed to create project:', err, createErr)
@@ -45,6 +51,8 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+
 
 watch(shapes, () => {
   hasUnsavedChanges.value = true
@@ -58,7 +66,7 @@ const handleSaved = () => {
   hasUnsavedChanges.value = false
 }
 
-const handleRestore = (snapshotId: number, shapesData: string) => {
+const handleRestore = (_snapshotId: number, shapesData: string) => {
   const parsed = JSON.parse(shapesData)
   shapes.value = Array.isArray(parsed) ? parsed : (parsed.shapes || [])
   hasUnsavedChanges.value = false
@@ -136,6 +144,8 @@ const handleCreateProject = async (title: string) => {
     console.error('Failed to create project:', err)
   }
 }
+
+
 </script>
 
 <template>
@@ -154,9 +164,11 @@ const handleCreateProject = async (title: string) => {
       <div class="main-content">
         <LeftPanel 
           :shapes="shapes"
+          :current-project-id="currentProjectId"
           @open-project="handleOpenProject"
           @delete-project="handleDeleteProject"
           @create-project="handleCreateProject"
+          @restore-snapshot="handleRestore"
         />
         <RightPanel :shapes="shapes" @shapes-updated="handleShapesUpdated" />
       </div>

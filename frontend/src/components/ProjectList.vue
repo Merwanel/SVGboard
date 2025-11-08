@@ -1,17 +1,23 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useProjects } from '@/composables/useProjects'
+import { useSnapshots } from '@/composables/useSnapshots'
 import SvgPreview from './SvgPreview.vue'
+import type { SnapshotResponse } from '@/types/api'
 
 const emit = defineEmits<{
   openProject: [projectId: number]
   deleteProject: [projectId: number]
   createProject: [title: string]
+  restoreSnapshot: [snapshotId: number, shapesData: string]
 }>()
 
 const { projects, fetchProjects, isLoading } = useProjects()
+const { fetchSnapshots } = useSnapshots()
 const searchQuery = ref('')
 const isInitialLoad = ref(true)
+const expandedProjectId = ref<number | null>(null)
+const projectSnapshots = ref<Record<number, SnapshotResponse[]>>({})
 
 onMounted(async () => {
   await fetchProjects()
@@ -42,6 +48,24 @@ const handleCreateProject = () => {
   const title = newProjectTitle.value.trim() || 'Untitled'
   emit('createProject', title)
   newProjectTitle.value = ''
+}
+
+const toggleProjectExpand = async (projectId: number) => {
+  if (expandedProjectId.value === projectId) {
+    expandedProjectId.value = null
+  } else {
+    expandedProjectId.value = projectId
+    if (!projectSnapshots.value[projectId]) {
+      const snapshots = await fetchSnapshots(projectId)
+      if (snapshots) {
+        projectSnapshots.value[projectId] = snapshots
+      }
+    }
+  }
+}
+
+const handleRestoreSnapshot = (snapshotId: number, shapesData: string) => {
+  emit('restoreSnapshot', snapshotId, shapesData)
 }
 
 const getLatestSnapshotData = (project: any): string => {
@@ -89,26 +113,53 @@ const formatDate = (dateString: string): string => {
       <div
         v-for="project in filteredProjects"
         :key="project.id"
-        class="project-item"
-        @click="handleOpenProject(project.id)"
+        class="project-wrapper"
       >
-        <div class="project-preview">
-          <SvgPreview
-            :shapes-data="getLatestSnapshotData(project)"
-            size="large"
-          />
+        <div class="project-item" @click="handleOpenProject(project.id)">
+          <button
+            class="expand-toggle"
+            @click.stop="toggleProjectExpand(project.id)"
+            :title="expandedProjectId === project.id ? 'Collapse' : 'Expand snapshots'"
+          >
+            {{ expandedProjectId === project.id ? '▼' : '▶' }}
+          </button>
+          <div class="project-preview">
+            <SvgPreview
+              :shapes-data="getLatestSnapshotData(project)"
+              size="large"
+            />
+          </div>
+          <div class="project-info">
+            <h3 class="project-title">{{ project.title }}</h3>
+            <p class="project-date">{{ formatDate(project.updatedAt) }}</p>
+          </div>
+          <button
+            class="delete-btn"
+            @click.stop="handleDeleteProject(project.id)"
+            title="Delete project"
+          >
+            ×
+          </button>
         </div>
-        <div class="project-info">
-          <h3 class="project-title">{{ project.title }}</h3>
-          <p class="project-date">{{ formatDate(project.updatedAt) }}</p>
+        
+        <div v-if="expandedProjectId === project.id" class="snapshots-list">
+          <div
+            v-for="snapshot in projectSnapshots[project.id]"
+            :key="snapshot.id"
+            class="snapshot-item"
+            @click="handleRestoreSnapshot(snapshot.id, snapshot.shapesData)"
+          >
+            <div class="snapshot-preview">
+              <SvgPreview
+                :shapes-data="snapshot.shapesData"
+                size="small"
+              />
+            </div>
+            <div class="snapshot-info">
+              <p class="snapshot-date">{{ formatDate(snapshot.createdAt) }}</p>
+            </div>
+          </div>
         </div>
-        <button
-          class="delete-btn"
-          @click.stop="handleDeleteProject(project.id)"
-          title="Delete project"
-        >
-          ×
-        </button>
       </div>
     </div>
 
@@ -169,6 +220,11 @@ const formatDate = (dateString: string): string => {
   gap: 1rem;
 }
 
+.project-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
 .project-item {
   display: flex;
   align-items: center;
@@ -182,8 +238,23 @@ const formatDate = (dateString: string): string => {
 }
 
 .project-item:hover {
-  border-color: #42b983;
-  background: rgba(66, 185, 131, 0.05);
+  border-color: var(--action-color);
+  background: var(--action-color-light);
+}
+
+.expand-toggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.25rem;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.expand-toggle:hover {
+  color: var(--action-color);
 }
 
 .project-preview {
@@ -275,5 +346,47 @@ const formatDate = (dateString: string): string => {
 
 .create-btn:hover {
   background: var(--action-color-hover);
+}
+
+.snapshots-list {
+  margin-left: 2rem;
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.snapshot-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--bg-secondary);
+}
+
+.snapshot-item:hover {
+  border-color: var(--action-color);
+  background: var(--action-color-medium);
+}
+
+.snapshot-preview {
+  flex-shrink: 0;
+}
+
+.snapshot-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.snapshot-date {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
 }
 </style>

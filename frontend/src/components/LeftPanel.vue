@@ -6,12 +6,15 @@ import type { Shape } from '@/types/shapes'
 
 defineProps<{
   shapes: Shape[]
+  currentProjectId: number | null
 }>()
 
 const emit = defineEmits<{
   openProject: [projectId: number]
   deleteProject: [projectId: number]
   createProject: [title: string]
+  duplicateProject: [projectId: number, title: string]
+  restoreSnapshot: [snapshotId: number, shapesData: string]
 }>()
 
 const isCollapsed = ref(false)
@@ -25,6 +28,10 @@ const setView = (view: 'code' | 'history') => {
   activeView.value = view
 }
 
+defineExpose({
+  setView
+})
+
 const handleOpenProject = (projectId: number) => {
   emit('openProject', projectId)
 }
@@ -35,6 +42,14 @@ const handleDeleteProject = (projectId: number) => {
 
 const handleCreateProject = (title: string) => {
   emit('createProject', title)
+}
+
+const handleRestoreSnapshot = (snapshotId: number, shapesData: string) => {
+  emit('restoreSnapshot', snapshotId, shapesData)
+}
+
+const handleDuplicateProject = (projectId: number, title: string) => {
+  emit('duplicateProject', projectId, title)
 }
 </script>
 
@@ -64,6 +79,7 @@ const handleCreateProject = (title: string) => {
           @open-project="handleOpenProject"
           @delete-project="handleDeleteProject"
           @create-project="handleCreateProject"
+          @restore-snapshot="handleRestoreSnapshot"
         />
       </div>
     </div>

@@ -37,6 +37,6 @@ class ProjectControllerTest extends BaseControllerTest {
         )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(NB_ENTRIES_PR))
-            .andExpect(jsonPath("$[0].title").value("project 0"));
+            .andExpect(jsonPath("$[0].title").value("project 4"));
     }
 }
