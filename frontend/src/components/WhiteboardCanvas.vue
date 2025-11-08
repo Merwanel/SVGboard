@@ -10,7 +10,9 @@ const props = defineProps<{
 const DRAG_THRESHOLD = 3
 
 const shapes = ref<Shape[]>([...props.initialShapes])
+const selectedShape = ref<number | null>(null)
 const draggingShape = ref<number | null>(null)
+const resizingShape = ref<{ id: number; handle: string } | null>(null)
 const dragOffset = ref({ x:-1, y: -1 })
 const dragStartPos = ref({ x: 0, y: 0 })
 const hasMoved = ref(false)
@@ -73,6 +75,8 @@ const startDrag = (event: MouseEvent, shapeId: number) => {
   const shape = shapes.value.find(s => s.id === shapeId)
   if (!shape) return
 
+  selectedShape.value = shapeId
+
   const svg = (event.currentTarget as SVGElement).ownerSVGElement || (event.currentTarget as SVGElement)
   const rect = svg.getBoundingClientRect()
 
@@ -89,6 +93,11 @@ const startDrag = (event: MouseEvent, shapeId: number) => {
 }
 
 const handleDrag = (event: MouseEvent) => {
+  if (resizingShape.value) {
+    handleResize(event)
+    return
+  }
+
   if (draggingShape.value === null) return
 
   const shape = shapes.value.find(s => s.id === draggingShape.value)
@@ -119,6 +128,95 @@ const handleDrag = (event: MouseEvent) => {
 
 const stopDrag = () => {
   draggingShape.value = null
+  resizingShape.value = null
+}
+
+const startResize = (event: MouseEvent, shapeId: number, handle: string) => {
+  event.stopPropagation()
+  resizingShape.value = { id: shapeId, handle }
+  dragStartPos.value = {
+    x: event.clientX,
+    y: event.clientY
+  }
+}
+
+const handleResize = (event: MouseEvent) => {
+  if (!resizingShape.value) return
+
+  const shape = shapes.value.find(s => s.id === resizingShape.value!.id)
+  if (!shape) return
+
+  const svg = event.currentTarget as SVGElement
+  const rect = svg.getBoundingClientRect()
+  const mouseX = event.clientX - rect.left
+  const mouseY = event.clientY - rect.top
+
+  const handle = resizingShape.value.handle
+
+  if (shape.type === 'rectangle') {
+    if (handle.includes('e')) {
+      shape.width = Math.max(10, mouseX - shape.x)
+    }
+    if (handle.includes('w')) {
+      const newX = mouseX
+      const newWidth = shape.width! + (shape.x - newX)
+      if (newWidth > 10) {
+        shape.x = newX
+        shape.width = newWidth
+      }
+    }
+    if (handle.includes('s')) {
+      shape.height = Math.max(10, mouseY - shape.y)
+    }
+    if (handle.includes('n')) {
+      const newY = mouseY
+      const newHeight = shape.height! + (shape.y - newY)
+      if (newHeight > 10) {
+        shape.y = newY
+        shape.height = newHeight
+      }
+    }
+  } else if (shape.type === 'circle') {
+    const dx = mouseX - shape.x
+    const dy = mouseY - shape.y
+    shape.radius = Math.max(5, Math.sqrt(dx * dx + dy * dy))
+  } else if (shape.type === 'ellipse') {
+    if (handle === 'e' || handle === 'w') {
+      shape.radiusX = Math.max(5, Math.abs(mouseX - shape.x))
+    }
+    if (handle === 'n' || handle === 's') {
+      shape.radiusY = Math.max(5, Math.abs(mouseY - shape.y))
+    }
+  }
+
+  emit('shapesUpdated', shapes.value)
+}
+
+const getResizeHandles = (shape: Shape) => {
+  if (shape.type === 'rectangle') {
+    return [
+      { handle: 'nw', x: shape.x, y: shape.y },
+      { handle: 'n', x: shape.x + shape.width! / 2, y: shape.y },
+      { handle: 'ne', x: shape.x + shape.width!, y: shape.y },
+      { handle: 'e', x: shape.x + shape.width!, y: shape.y + shape.height! / 2 },
+      { handle: 'se', x: shape.x + shape.width!, y: shape.y + shape.height! },
+      { handle: 's', x: shape.x + shape.width! / 2, y: shape.y + shape.height! },
+      { handle: 'sw', x: shape.x, y: shape.y + shape.height! },
+      { handle: 'w', x: shape.x, y: shape.y + shape.height! / 2 }
+    ]
+  } else if (shape.type === 'circle') {
+    return [
+      { handle: 'e', x: shape.x + shape.radius!, y: shape.y }
+    ]
+  } else if (shape.type === 'ellipse') {
+    return [
+      { handle: 'e', x: shape.x + shape.radiusX!, y: shape.y },
+      { handle: 'w', x: shape.x - shape.radiusX!, y: shape.y },
+      { handle: 'n', x: shape.x, y: shape.y - shape.radiusY! },
+      { handle: 's', x: shape.x, y: shape.y + shape.radiusY! }
+    ]
+  }
+  return []
 }
 </script>
 
@@ -174,6 +272,23 @@ const stopDrag = () => {
       class="shape"
       @mousedown="startDrag($event, shape.id)"
     />
+
+    <g v-if="selectedShape !== null">
+      <template v-for="shape in shapes.filter(s => s.id === selectedShape)" :key="`handles-${shape.id}`">
+        <circle
+          v-for="handle in getResizeHandles(shape)"
+          :key="`${shape.id}-${handle.handle}`"
+          :cx="handle.x"
+          :cy="handle.y"
+          r="5"
+          fill="white"
+          stroke="var(--action-color)"
+          stroke-width="2"
+          class="resize-handle"
+          @mousedown.stop="startResize($event, shape.id, handle.handle)"
+        />
+      </template>
+    </g>
   </svg>
 </template>
 
@@ -189,11 +304,18 @@ const stopDrag = () => {
 .shape {
   cursor: move;
   &:active {
-    cursor: cell  ;
+    cursor: cell;
   }
 }
 
 .shape:hover {
   opacity: 0.8;
+}
+
+.resize-handle {
+  cursor: nwse-resize;
+  &:hover {
+    r: 6;
+  }
 }
 </style>
