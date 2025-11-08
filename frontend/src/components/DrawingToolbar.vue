@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import WhiteboardCanvas from './WhiteboardCanvas.vue'
-import AnimationPanel from './AnimationPanel.vue'
-import type { Shape, Tool, AnimationType } from '@/types/shapes'
+import AnimationTimeline from './AnimationTimeline.vue'
+import type { Shape, Tool, AnimationTrack } from '@/types/shapes'
 
 const props = defineProps<{
   shapes: Shape[]
@@ -35,15 +35,37 @@ const handleShapeSelected = (shapeId: number | null) => {
   selectedShapeId.value = shapeId
 }
 
-const handleApplyAnimation = (shapeId: number, type: AnimationType, duration: number, loop: boolean) => {
+const getCurrentTracks = (): AnimationTrack[] => {
+  if (selectedShapeId.value === null) return []
+  const shape = props.shapes.find((s: Shape) => s.id === selectedShapeId.value)
+  return shape?.animations || []
+}
+
+const getCurrentTotalDuration = (): number => {
+  if (selectedShapeId.value === null) return 5
+  const shape = props.shapes.find((s: Shape) => s.id === selectedShapeId.value)
+  return shape?.totalDuration || 5
+}
+
+const handleUpdateTracks = (tracks: AnimationTrack[]) => {
+  if (selectedShapeId.value === null) return
   const updatedShapes = props.shapes.map((s: Shape) => {
-    if (s.id === shapeId) {
-      return { ...s, animation: { type, duration, loop } }
+    if (s.id === selectedShapeId.value) {
+      return { ...s, animations: tracks }
     }
     return s
   })
-  // TODO : delete
-  console.log('Animation applied:', updatedShapes.find(s => s.id === shapeId))
+  emit('shapesUpdated', updatedShapes)
+}
+
+const handleUpdateTotalDuration = (duration: number) => {
+  if (selectedShapeId.value === null) return
+  const updatedShapes = props.shapes.map((s: Shape) => {
+    if (s.id === selectedShapeId.value) {
+      return { ...s, totalDuration: duration }
+    }
+    return s
+  })
   emit('shapesUpdated', updatedShapes)
 }
 </script>
@@ -130,9 +152,12 @@ const handleApplyAnimation = (shapeId: number, type: AnimationType, duration: nu
       @shapes-updated="handleShapesUpdated"
       @shape-selected="handleShapeSelected"
     />
-    <AnimationPanel 
+    <AnimationTimeline 
       :selected-shape-id="selectedShapeId"
-      @apply-animation="handleApplyAnimation"
+      :tracks="getCurrentTracks()"
+      :total-duration="getCurrentTotalDuration()"
+      @update-tracks="handleUpdateTracks"
+      @update-total-duration="handleUpdateTotalDuration"
     />
   </div>
 </template>
