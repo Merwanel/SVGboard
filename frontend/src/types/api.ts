@@ -1,6 +1,7 @@
 export interface ProjectResponse {
   id: number
   title: string
+  lastShapesData: string
   createdAt: string
   updatedAt: string
 }

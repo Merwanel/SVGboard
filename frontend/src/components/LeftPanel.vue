@@ -1,41 +1,41 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import CodeView from './CodeView.vue'
-import HistoryView from './HistoryView.vue'
-import SvgPreview from './SvgPreview.vue' // TODO: delete
+import ProjectList from './ProjectList.vue'
 import type { Shape } from '@/types/shapes'
 
 defineProps<{
   shapes: Shape[]
-  projectId: number | null
 }>()
 
 const emit = defineEmits<{
-  restore: [snapshotId: number, shapesData: string]
+  openProject: [projectId: number]
+  deleteProject: [projectId: number]
+  createProject: [title: string]
 }>()
 
 const isCollapsed = ref(false)
-const activeView = ref<'code' | 'history' | 'browser'>('code')
+const activeView = ref<'code' | 'history'>('code')
 
 const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value
 }
 
-const setView = (view: 'code' | 'history' | 'browser') => {
+const setView = (view: 'code' | 'history') => {
   activeView.value = view
 }
 
-const handleRestore = (snapshotId: number, shapesData: string) => {
-  emit('restore', snapshotId, shapesData)
+const handleOpenProject = (projectId: number) => {
+  emit('openProject', projectId)
 }
 
-// TODO: delete
-const testShapesData = JSON.stringify([
-  { id: 1, type: 'rectangle', x: 50, y: 50, width: 150, height: 100, fill: '#ff6b6b' },
-  { id: 2, type: 'circle', x: 300, y: 150, radius: 60, fill: '#4ecdc4' },
-  { id: 3, type: 'ellipse', x: 500, y: 200, radiusX: 80, radiusY: 40, fill: '#45b7d1' },
-  { id: 4, type: 'line', x: 100, y: 400, x2: 400, y2: 500, fill: '#f9ca24' }
-])
+const handleDeleteProject = (projectId: number) => {
+  emit('deleteProject', projectId)
+}
+
+const handleCreateProject = (title: string) => {
+  emit('createProject', title)
+}
 </script>
 
 <template>
@@ -54,37 +54,17 @@ const testShapesData = JSON.stringify([
           :class="{ active: activeView === 'history' }"
           @click="setView('history')"
         >
-          History
-        </button>
-        <button 
-          class="tab"
-          :class="{ active: activeView === 'browser' }"
-          @click="setView('browser')"
-        >
-          Browser
+          history
         </button>
       </div>
       <div class="view-content">
         <CodeView v-if="activeView === 'code'" :shapes="shapes" />
-        <HistoryView 
-          v-else-if="activeView === 'history'" 
-          :project-id="projectId"
-          @restore="handleRestore"
+        <ProjectList
+          v-else
+          @open-project="handleOpenProject"
+          @delete-project="handleDeleteProject"
+          @create-project="handleCreateProject"
         />
-        <div v-else class="placeholder">
-          <p>browser</p>
-          <!-- TODO: delete -->
-          <div style="margin-top: 2rem;">
-            <h3 style="margin-bottom: 1rem;">Large Preview:</h3>
-            <SvgPreview :shapes-data="testShapesData" size="large" />
-            
-            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Small Preview:</h3>
-            <SvgPreview :shapes-data="testShapesData" size="small" />
-            
-            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Empty Preview:</h3>
-            <SvgPreview shapes-data="" size="large" />
-          </div>
-        </div>
       </div>
     </div>
     <button class="collapse-btn" @click="toggleCollapse">
@@ -155,11 +135,7 @@ const testShapesData = JSON.stringify([
   overflow: auto;
 }
 
-.placeholder {
-  padding: 2rem;
-  text-align: center;
-  color: var(--text-secondary);
-}
+
 
 .collapse-btn {
   position: absolute;

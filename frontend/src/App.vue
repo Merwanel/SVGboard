@@ -5,6 +5,7 @@ import RightPanel from './components/RightPanel.vue'
 import SaveStatusIndicator from './components/SaveStatusIndicator.vue'
 import Theme from './components/Theme.vue'
 import { useProjects } from '@/composables/useProjects'
+import { useSnapshots } from '@/composables/useSnapshots'
 import type { Shape } from '@/types/shapes'
 
 const shapes = ref<Shape[]>([])
@@ -12,7 +13,10 @@ const currentProjectId = ref<number | null>(null)
 const hasUnsavedChanges = ref(false)
 const isLoading = ref(true)
 
-const { createProject, fetchLatestProject } = useProjects()
+const { 
+  createProject, fetchLatestProject, fetchProjectById, deleteProject, fetchProjects 
+} = useProjects()
+const { fetchSnapshots } = useSnapshots()
 
 onMounted(async () => {
   try {
@@ -59,6 +63,79 @@ const handleRestore = (snapshotId: number, shapesData: string) => {
   shapes.value = Array.isArray(parsed) ? parsed : (parsed.shapes || [])
   hasUnsavedChanges.value = false
 }
+
+const handleOpenProject = async (projectId: number) => {
+  try {
+    const project = await fetchProjectById(projectId)
+    if (project) {
+      currentProjectId.value = project.id
+      
+      const snapshots = await fetchSnapshots(projectId)
+      if (snapshots && snapshots.length > 0) {
+        const latestSnapshot = snapshots[0]
+        if (latestSnapshot) {
+          const parsed = JSON.parse(latestSnapshot.shapesData)
+          shapes.value = Array.isArray(parsed) ? parsed : (parsed.shapes || [])
+        } else {
+          shapes.value = []
+        }
+      } else {
+        shapes.value = []
+      }
+      hasUnsavedChanges.value = false
+    }
+  } catch (err) {
+    console.error('Failed to open project:', err)
+  }
+}
+
+const handleDeleteProject = async (projectId: number) => {
+  try {
+    await deleteProject(projectId)
+    
+    await fetchProjects()
+    
+    if (currentProjectId.value === projectId) {
+      const project = await fetchLatestProject()
+      if (project) {
+        currentProjectId.value = project.id
+        if (project.snapshots && project.snapshots.length > 0) {
+          const latestSnapshot = project.snapshots[0]
+          if (latestSnapshot) {
+            const parsed = JSON.parse(latestSnapshot.shapesData)
+            shapes.value = Array.isArray(parsed) ? parsed : (parsed.shapes || [])
+          }
+        } else {
+          shapes.value = []
+        }
+      } else {
+        const newProject = await createProject('Untitled')
+        if (newProject) {
+          currentProjectId.value = newProject.id
+          shapes.value = []
+        }
+      }
+      hasUnsavedChanges.value = false
+    }
+  } catch (err) {
+    console.error('Failed to delete project:', err)
+  }
+}
+
+const handleCreateProject = async (title: string) => {
+  try {
+    const newProject = await createProject(title)
+    if (newProject) {
+      currentProjectId.value = newProject.id
+      shapes.value = []
+      hasUnsavedChanges.value = false
+
+      await fetchProjects()
+    }
+  } catch (err) {
+    console.error('Failed to create project:', err)
+  }
+}
 </script>
 
 <template>
@@ -76,9 +153,10 @@ const handleRestore = (snapshotId: number, shapesData: string) => {
       </div>
       <div class="main-content">
         <LeftPanel 
-          :shapes="shapes" 
-          :project-id="currentProjectId"
-          @restore="handleRestore"
+          :shapes="shapes"
+          @open-project="handleOpenProject"
+          @delete-project="handleDeleteProject"
+          @create-project="handleCreateProject"
         />
         <RightPanel :shapes="shapes" @shapes-updated="handleShapesUpdated" />
       </div>
