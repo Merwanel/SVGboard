@@ -17,6 +17,8 @@ describe('WhiteboardCanvas', () => {
     const wrapper = mount(WhiteboardCanvas, {
       props: {
         selectedTool: null,
+        strokeColor: '#000000',
+        fillColor: '#42b983',
         initialShapes: [mockShape]
       }
     })
@@ -36,6 +38,8 @@ describe('WhiteboardCanvas', () => {
     const wrapper = mount(WhiteboardCanvas, {
       props: {
         selectedTool: null,
+        strokeColor: '#000000',
+        fillColor: '#42b983',
         initialShapes: [{ ...mockShape }]
       }
     })

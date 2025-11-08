@@ -24,6 +24,9 @@ describe('DrawingToolbar', () => {
       }
     })
 
+    const checkbox = wrapper.find('input[type="checkbox"]')
+    await checkbox.setValue(false)
+
     const colorPicker = wrapper.find('#fill-color')
     await colorPicker.setValue('#00ff00')
 
@@ -31,7 +34,7 @@ describe('DrawingToolbar', () => {
     expect(canvas.props('fillColor')).toBe('#00ff00')
   })
 
-  it('sets fill to none when no fill checkbox is checked', async () => {
+  it('shoudl by default, sets fill to none when no fill checkbox is checked', async () => {
     const wrapper = mount(DrawingToolbar, {
       props: {
         shapes: []

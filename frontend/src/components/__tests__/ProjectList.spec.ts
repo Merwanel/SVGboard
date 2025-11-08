@@ -13,21 +13,23 @@ describe('ProjectList', () => {
     {
       id: 1,
       title: 'Project Alpha',
-      snapshots: [
-        { id: 1, shapesData: '[{"id":1,"type":"rectangle","x":10,"y":10,"width":50,"height":50,"fill":"#ff0000"}]' }
-      ]
+      lastShapesData: '[{"id":1,"type":"rectangle","x":10,"y":10,"width":50,"height":50,"fill":"#ff0000"}]',
+      createdAt: '2024-01-01T10:00:00Z',
+      updatedAt: '2024-01-01T10:00:00Z'
     },
     {
       id: 2,
       title: 'Project Beta',
-      snapshots: []
+      lastShapesData: '[]',
+      createdAt: '2024-01-01T11:00:00Z',
+      updatedAt: '2024-01-01T11:00:00Z'
     },
     {
       id: 3,
       title: 'Another Project',
-      snapshots: [
-        { id: 2, shapesData: '[{"id":2,"type":"circle","x":100,"y":100,"radius":30,"fill":"#00ff00"}]' }
-      ]
+      lastShapesData: '[{"id":2,"type":"circle","x":100,"y":100,"radius":30,"fill":"#00ff00"}]',
+      createdAt: '2024-01-01T12:00:00Z',
+      updatedAt: '2024-01-01T12:00:00Z'
     }
   ]
 
@@ -50,12 +52,29 @@ describe('ProjectList', () => {
     vi.clearAllMocks()
     vi.mocked(useProjects).mockReturnValue({
       projects: ref(mockProjects),
+      currentProject: ref(null),
+      isLoading: ref(false),
+      error: ref(null),
       fetchProjects: vi.fn(),
-      isLoading: ref(false)
-    } as any)
+      fetchProjectById: vi.fn(),
+      fetchLatestProject: vi.fn(),
+      createProject: vi.fn(),
+      updateProject: vi.fn(),
+      deleteProject: vi.fn()
+    })
     vi.mocked(useSnapshots).mockReturnValue({
-      fetchSnapshots: vi.fn().mockResolvedValue(mockSnapshots)
-    } as any)
+      snapshots: ref([]),
+      currentSnapshot: ref(null),
+      isLoading: ref(false),
+      error: ref(null),
+      fetchSnapshots: vi.fn().mockResolvedValue(mockSnapshots),
+      fetchSnapshotById: vi.fn(),
+      deserializeShapes: vi.fn(),
+      serializeShapes: vi.fn(),
+      createSnapshot: vi.fn(),
+      deleteSnapshot: vi.fn(),
+      deleteAllSnapshots: vi.fn()
+    })
   })
 
   it('displays and filters projects', async () => {
@@ -86,9 +105,16 @@ describe('ProjectList', () => {
   it('shows empty state when no projects', () => {
     vi.mocked(useProjects).mockReturnValue({
       projects: ref([]),
+      currentProject: ref(null),
+      isLoading: ref(false),
+      error: ref(null),
       fetchProjects: vi.fn(),
-      isLoading: ref(false)
-    } as any)
+      fetchProjectById: vi.fn(),
+      fetchLatestProject: vi.fn(),
+      createProject: vi.fn(),
+      updateProject: vi.fn(),
+      deleteProject: vi.fn()
+    })
     
     const wrapper = mount(ProjectList)
     expect(wrapper.find('.empty-state').exists()).toBe(true)

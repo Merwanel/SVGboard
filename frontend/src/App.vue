@@ -14,9 +14,9 @@ const hasUnsavedChanges = ref(false)
 const isLoading = ref(true)
 
 const { 
-  createProject, fetchLatestProject, fetchProjectById, deleteProject, fetchProjects, projects 
+  createProject, fetchLatestProject, fetchProjectById, deleteProject, fetchProjects
 } = useProjects()
-const { fetchSnapshots, createSnapshot } = useSnapshots()
+const { fetchSnapshots } = useSnapshots()
 
 onMounted(async () => {
   

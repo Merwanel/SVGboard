@@ -68,7 +68,7 @@ const handleRestoreSnapshot = (snapshotId: number, shapesData: string) => {
   emit('restoreSnapshot', snapshotId, shapesData)
 }
 
-const getLatestSnapshotData = (project: any): string => {
+const getLatestSnapshotData = (project: { lastShapesData?: string }): string => {
   return project.lastShapesData || '[]'
 }
 

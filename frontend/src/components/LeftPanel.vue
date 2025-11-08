@@ -13,7 +13,6 @@ const emit = defineEmits<{
   openProject: [projectId: number]
   deleteProject: [projectId: number]
   createProject: [title: string]
-  duplicateProject: [projectId: number, title: string]
   restoreSnapshot: [snapshotId: number, shapesData: string]
 }>()
 
@@ -46,10 +45,6 @@ const handleCreateProject = (title: string) => {
 
 const handleRestoreSnapshot = (snapshotId: number, shapesData: string) => {
   emit('restoreSnapshot', snapshotId, shapesData)
-}
-
-const handleDuplicateProject = (projectId: number, title: string) => {
-  emit('duplicateProject', projectId, title)
 }
 </script>
 
