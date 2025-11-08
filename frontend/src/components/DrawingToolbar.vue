@@ -10,6 +10,8 @@ defineProps<{
 const isCollapsed = ref(false)
 const selectedTool = ref<ShapeType | null>(null)
 const strokeColor = ref('#000000')
+const fillColor = ref('#42b983')
+const noFill = ref(true)
 
 const emit = defineEmits<{
   shapesUpdated: [shapes: Shape[]]
@@ -77,11 +79,27 @@ const handleShapesUpdated = (shapes: Shape[]) => {
             title="Stroke color"
           />
         </div>
+        <div class="color-picker-wrapper">
+          <label for="fill-color" class="color-label">Fill</label>
+          <input 
+            id="fill-color"
+            type="color" 
+            v-model="fillColor"
+            class="color-picker"
+            :disabled="noFill"
+            title="Fill color"
+          />
+          <label class="no-fill-label">
+            <input type="checkbox" v-model="noFill" />
+            None
+          </label>
+        </div>
       </div>
     </div>
     <WhiteboardCanvas 
       :selected-tool="selectedTool"
       :stroke-color="strokeColor"
+      :fill-color="noFill ? 'none' : fillColor"
       :initial-shapes="shapes"
       @shapes-updated="handleShapesUpdated"
     />
@@ -178,5 +196,19 @@ const handleShapesUpdated = (shapes: Shape[]) => {
 
 .color-picker:hover {
   border-color: var(--action-color);
+}
+
+.color-picker:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.no-fill-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
 }
 </style>

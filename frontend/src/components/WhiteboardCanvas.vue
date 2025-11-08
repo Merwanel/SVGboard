@@ -5,6 +5,7 @@ import type { Shape, ShapeType } from '@/types/shapes'
 const props = defineProps<{
   selectedTool: ShapeType | null
   strokeColor: string
+  fillColor: string
   initialShapes: Shape[]
 }>()
 
@@ -51,7 +52,7 @@ const handleCanvasClick = (event: MouseEvent) => {
     type: props.selectedTool,
     x,
     y,
-    fill: 'var(--action-color)',
+    fill: props.fillColor,
     stroke: props.strokeColor
   }
 
