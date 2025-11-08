@@ -49,13 +49,17 @@ public class SnapshotService {
     
     @Transactional
     public SnapshotResponse createSnapshot(Long projectId, SnapshotRequest request) {
-        if (!projectRepository.existsById(projectId)) {
-            throw new RuntimeException("Project not found with id: " + projectId);
-        }
+        var project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));
+        
         Snapshot snapshot = new Snapshot();
         snapshot.setProjectId(projectId);
         snapshot.setShapesData(request.shapesData());
         Snapshot saved = snapshotRepository.save(snapshot);
+        
+        project.setLastShapesData(request.shapesData());
+        projectRepository.save(project);
+        
         return toResponse(saved);
     }
     

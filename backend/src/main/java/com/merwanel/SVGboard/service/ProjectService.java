@@ -30,6 +30,7 @@ public class ProjectService {
         return new ProjectResponse(
             project.getId(),
             project.getTitle(),
+            project.getLastShapesData(),
             project.getCreatedAt(),
             project.getUpdatedAt()
         );

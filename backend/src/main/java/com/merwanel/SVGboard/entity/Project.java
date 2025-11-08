@@ -18,6 +18,9 @@ public class Project {
     @Column(nullable = false)
     private String title;
     
+    @Column(name = "last_shapes_data", nullable = false, columnDefinition = "TEXT")
+    private String lastShapesData = "[]";
+    
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
     
