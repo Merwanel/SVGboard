@@ -32,9 +32,9 @@ A full-stack web application for creating and animating SVG graphics with versio
 - JUnit 5 + H2 for testing
 
 **DevOps**
+- Docker Compose
 - GitHub Actions CI/CD
 - Codecov integration
-- Maven + npm build tools
 
 ## API Endpoints
 
@@ -55,14 +55,22 @@ DELETE /projects/{id}/snapshots/{snapshotId} - Delete snapshot
 
 ## Setup
 
-**Backend**
+**Docker (recommended)**
+```bash
+docker compose up
+```
+Access at http://localhost
+
+**Manual Setup**
+
+Backend:
 ```bash
 docker run --name mysql_container -e MYSQL_ROOT_PASSWORD=my-secret-pw -p 3306:3306 -d mysql:9.5.0
 cd backend
 ./mvnw spring-boot:run
 ```
 
-**Frontend**
+Frontend:
 ```bash
 cd frontend
 npm install
