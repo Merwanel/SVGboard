@@ -2,11 +2,13 @@
 import { ref } from 'vue'
 import CodeView from './CodeView.vue'
 import ProjectList from './ProjectList.vue'
-import type { Shape } from '@/types/shapes'
+import AnimationTimeline from './AnimationTimeline.vue'
+import type { Shape, AnimationTrack } from '@/types/shapes'
 
-defineProps<{
+const props = defineProps<{
   shapes: Shape[]
   currentProjectId: number | null
+  selectedShapeId: number | null
 }>()
 
 const emit = defineEmits<{
@@ -14,16 +16,17 @@ const emit = defineEmits<{
   deleteProject: [projectId: number]
   createProject: [title: string]
   restoreSnapshot: [snapshotId: number, shapesData: string]
+  updateShapes: [shapes: Shape[]]
 }>()
 
 const isCollapsed = ref(false)
-const activeView = ref<'code' | 'history'>('code')
+const activeView = ref<'code' | 'history' | 'animation'>('code')
 
 const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value
 }
 
-const setView = (view: 'code' | 'history') => {
+const setView = (view: 'code' | 'history' | 'animation') => {
   activeView.value = view
 }
 
@@ -46,6 +49,40 @@ const handleCreateProject = (title: string) => {
 const handleRestoreSnapshot = (snapshotId: number, shapesData: string) => {
   emit('restoreSnapshot', snapshotId, shapesData)
 }
+
+const getCurrentTracks = (): AnimationTrack[] => {
+  if (props.selectedShapeId === null) return []
+  const shape = props.shapes.find(s => s.id === props.selectedShapeId)
+  return shape?.animations || []
+}
+
+const getCurrentTotalDuration = (): number => {
+  if (props.selectedShapeId === null) return 5
+  const shape = props.shapes.find(s => s.id === props.selectedShapeId)
+  return shape?.totalDuration || 5
+}
+
+const handleUpdateTracks = (tracks: AnimationTrack[]) => {
+  if (props.selectedShapeId === null) return
+  const updatedShapes = props.shapes.map((s: Shape) => {
+    if (s.id === props.selectedShapeId) {
+      return { ...s, animations: tracks }
+    }
+    return s
+  })
+  emit('updateShapes', updatedShapes)
+}
+
+const handleUpdateTotalDuration = (duration: number) => {
+  if (props.selectedShapeId === null) return
+  const updatedShapes = props.shapes.map((s: Shape) => {
+    if (s.id === props.selectedShapeId) {
+      return { ...s, totalDuration: duration }
+    }
+    return s
+  })
+  emit('updateShapes', updatedShapes)
+}
 </script>
 
 <template>
@@ -64,17 +101,32 @@ const handleRestoreSnapshot = (snapshotId: number, shapesData: string) => {
           :class="{ active: activeView === 'history' }"
           @click="setView('history')"
         >
-          history
+          History
+        </button>
+        <button 
+          class="tab"
+          :class="{ active: activeView === 'animation' }"
+          @click="setView('animation')"
+        >
+          Animation
         </button>
       </div>
       <div class="view-content">
         <CodeView v-if="activeView === 'code'" :shapes="shapes" />
         <ProjectList
-          v-else
+          v-else-if="activeView === 'history'"
           @open-project="handleOpenProject"
           @delete-project="handleDeleteProject"
           @create-project="handleCreateProject"
           @restore-snapshot="handleRestoreSnapshot"
+        />
+        <AnimationTimeline
+          v-else-if="activeView === 'animation'"
+          :selected-shape-id="selectedShapeId"
+          :tracks="getCurrentTracks()"
+          :total-duration="getCurrentTotalDuration()"
+          @update-tracks="handleUpdateTracks"
+          @update-total-duration="handleUpdateTotalDuration"
         />
       </div>
     </div>

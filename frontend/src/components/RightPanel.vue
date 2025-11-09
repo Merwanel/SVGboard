@@ -8,16 +8,25 @@ defineProps<{
 
 const emit = defineEmits<{
   shapesUpdated: [shapes: Shape[]]
+  shapeSelected: [shapeId: number | null]
 }>()
 
 const handleShapesUpdated = (shapes: Shape[]) => {
   emit('shapesUpdated', shapes)
 }
+
+const handleShapeSelected = (shapeId: number | null) => {
+  emit('shapeSelected', shapeId)
+}
 </script>
 
 <template>
   <div class="right-panel">
-    <DrawingToolbar :shapes="shapes" @shapes-updated="handleShapesUpdated" />
+    <DrawingToolbar 
+      :shapes="shapes" 
+      @shapes-updated="handleShapesUpdated"
+      @shape-selected="handleShapeSelected"
+    />
   </div>
 </template>
 

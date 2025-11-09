@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import WhiteboardCanvas from './WhiteboardCanvas.vue'
-import AnimationTimeline from './AnimationTimeline.vue'
-import type { Shape, Tool, AnimationTrack } from '@/types/shapes'
+import type { Shape, Tool } from '@/types/shapes'
 
-const props = defineProps<{
+defineProps<{
   shapes: Shape[]
 }>()
 
@@ -13,10 +12,10 @@ const selectedTool = ref<Tool>('select')
 const strokeColor = ref('#000000')
 const fillColor = ref('#42b983')
 const noFill = ref(true)
-const selectedShapeId = ref<number | null>(null)
 
 const emit = defineEmits<{
   shapesUpdated: [shapes: Shape[]]
+  shapeSelected: [shapeId: number | null]
 }>()
 
 const selectTool = (tool: Tool) => {
@@ -32,41 +31,7 @@ const handleShapesUpdated = (shapes: Shape[]) => {
 }
 
 const handleShapeSelected = (shapeId: number | null) => {
-  selectedShapeId.value = shapeId
-}
-
-const getCurrentTracks = (): AnimationTrack[] => {
-  if (selectedShapeId.value === null) return []
-  const shape = props.shapes.find((s: Shape) => s.id === selectedShapeId.value)
-  return shape?.animations || []
-}
-
-const getCurrentTotalDuration = (): number => {
-  if (selectedShapeId.value === null) return 5
-  const shape = props.shapes.find((s: Shape) => s.id === selectedShapeId.value)
-  return shape?.totalDuration || 5
-}
-
-const handleUpdateTracks = (tracks: AnimationTrack[]) => {
-  if (selectedShapeId.value === null) return
-  const updatedShapes = props.shapes.map((s: Shape) => {
-    if (s.id === selectedShapeId.value) {
-      return { ...s, animations: tracks }
-    }
-    return s
-  })
-  emit('shapesUpdated', updatedShapes)
-}
-
-const handleUpdateTotalDuration = (duration: number) => {
-  if (selectedShapeId.value === null) return
-  const updatedShapes = props.shapes.map((s: Shape) => {
-    if (s.id === selectedShapeId.value) {
-      return { ...s, totalDuration: duration }
-    }
-    return s
-  })
-  emit('shapesUpdated', updatedShapes)
+  emit('shapeSelected', shapeId)
 }
 </script>
 
@@ -151,13 +116,6 @@ const handleUpdateTotalDuration = (duration: number) => {
       :initial-shapes="shapes"
       @shapes-updated="handleShapesUpdated"
       @shape-selected="handleShapeSelected"
-    />
-    <AnimationTimeline 
-      :selected-shape-id="selectedShapeId"
-      :tracks="getCurrentTracks()"
-      :total-duration="getCurrentTotalDuration()"
-      @update-tracks="handleUpdateTracks"
-      @update-total-duration="handleUpdateTotalDuration"
     />
   </div>
 </template>

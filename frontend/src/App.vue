@@ -10,6 +10,7 @@ import type { Shape } from '@/types/shapes'
 
 const shapes = ref<Shape[]>([])
 const currentProjectId = ref<number | null>(null)
+const selectedShapeId = ref<number | null>(null)
 const hasUnsavedChanges = ref(false)
 const isLoading = ref(true)
 
@@ -60,6 +61,10 @@ watch(shapes, () => {
 
 const handleShapesUpdated = (updatedShapes: Shape[]) => {
   shapes.value = updatedShapes
+}
+
+const handleShapeSelected = (shapeId: number | null) => {
+  selectedShapeId.value = shapeId
 }
 
 const handleSaved = () => {
@@ -165,12 +170,18 @@ const handleCreateProject = async (title: string) => {
         <LeftPanel 
           :shapes="shapes"
           :current-project-id="currentProjectId"
+          :selected-shape-id="selectedShapeId"
           @open-project="handleOpenProject"
           @delete-project="handleDeleteProject"
           @create-project="handleCreateProject"
           @restore-snapshot="handleRestore"
+          @update-shapes="handleShapesUpdated"
         />
-        <RightPanel :shapes="shapes" @shapes-updated="handleShapesUpdated" />
+        <RightPanel 
+          :shapes="shapes" 
+          @shapes-updated="handleShapesUpdated"
+          @shape-selected="handleShapeSelected"
+        />
       </div>
     </template>
   </div>

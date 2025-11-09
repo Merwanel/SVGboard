@@ -305,19 +305,13 @@ const handleResize = (event: MouseEvent) => {
 
 <style scoped>
 .animation-timeline {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   padding: 1rem;
-  background: rgba(45, 45, 45, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
   transition: all 0.3s ease;
-  z-index: 100;
-  max-height: 50vh;
+  height: 100%;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 :root[data-theme="light"] .animation-timeline {
