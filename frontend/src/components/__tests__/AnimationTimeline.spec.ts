@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { mount, VueWrapper } from '@vue/test-utils'
 import AnimationTimeline from '../AnimationTimeline.vue'
 
 describe('AnimationTimeline', () => {
@@ -14,16 +14,28 @@ describe('AnimationTimeline', () => {
     }
   ]
 
-  it('renders timeline with tracks', () => {
-    const wrapper = mount(AnimationTimeline, {
+  let wrapper: VueWrapper
+
+  beforeEach(() => {
+    wrapper = mount(AnimationTimeline, {
       props: {
         selectedShapeId: mockShapeId,
         tracks: mockTracks,
         totalDuration: 5
       }
     })
+  })
 
+  it('renders timeline with tracks', () => {
     expect(wrapper.find('.track-row').exists()).toBe(true)
-    expect(wrapper.find('.track-label').text()).toBe('rotate')
+    expect((wrapper.find('.track-type-select').element as HTMLSelectElement).value).toBe('rotate')
+  })
+
+  it('shows editor when track is selected', async () => {
+    expect(wrapper.find('.track-editor').exists()).toBe(false)
+
+    await wrapper.find('.track-block').trigger('click')
+    
+    expect(wrapper.find('.track-editor h4').text()).toBe('Edit Animation')
   })
 })

@@ -15,6 +15,12 @@ const emit = defineEmits<{
 
 const localTotalDuration = ref(props.totalDuration || 5)
 const nextTrackId = ref(1)
+const selectedTrackId = ref<number | null>(null)
+const isDragging = ref(false)
+const isResizing = ref(false)
+const dragStartX = ref(0)
+const dragStartTime = ref(0)
+const resizeEdge = ref<'start' | 'end' | null>(null)
 
 const timeMarkers = computed(() => {
   const markers = []
@@ -61,6 +67,132 @@ const removeTrack = (trackId: number) => {
 const updateDuration = () => {
   emit('updateTotalDuration', localTotalDuration.value)
 }
+
+const selectedTrack = computed(() => {
+  return props.tracks.find(t => t.id === selectedTrackId.value)
+})
+
+const selectTrack = (trackId: number) => {
+  selectedTrackId.value = trackId
+}
+
+const updateTrackType = (type: AnimationType) => {
+  if (!selectedTrack.value) return
+  const updatedTracks = props.tracks.map(t => {
+    if (t.id === selectedTrackId.value) {
+      const defaultValues = getDefaultValues(type)
+      return { ...t, type, values: defaultValues }
+    }
+    return t
+  })
+  emit('updateTracks', updatedTracks)
+}
+
+
+
+const getDefaultValues = (type: AnimationType) => {
+  const defaults = {
+    rotate: { from: 0, to: 360 },
+    scale: { from: 1, to: 1.5 },
+    fade: { from: 1, to: 0 },
+    translate: { x: 0, y: 100 }
+  }
+  return defaults[type]
+}
+
+const startDrag = (event: MouseEvent, trackId: number) => {
+  const track = props.tracks.find(t => t.id === trackId)
+  if (!track) return
+
+  isDragging.value = true
+  selectedTrackId.value = trackId
+  dragStartX.value = event.clientX
+  dragStartTime.value = track.startTime
+
+  document.addEventListener('mousemove', handleDrag)
+  document.addEventListener('mouseup', stopDrag)
+}
+
+const handleDrag = (event: MouseEvent) => {
+  if (!isDragging.value || !selectedTrackId.value) return
+
+  const track = props.tracks.find(t => t.id === selectedTrackId.value)
+  if (!track) return
+
+  const timeline = document.querySelector('.track-timeline')
+  if (!timeline) return
+
+  const rect = timeline.getBoundingClientRect()
+  const deltaX = event.clientX - dragStartX.value
+  const deltaTime = (deltaX / rect.width) * localTotalDuration.value
+
+  let newStartTime = dragStartTime.value + deltaTime
+  newStartTime = Math.max(0, Math.min(newStartTime, localTotalDuration.value - track.duration))
+
+  const updatedTracks = props.tracks.map(t => {
+    if (t.id === selectedTrackId.value) {
+      return { ...t, startTime: newStartTime }
+    }
+    return t
+  })
+  emit('updateTracks', updatedTracks)
+}
+
+const stopDrag = () => {
+  isDragging.value = false
+  isResizing.value = false
+  resizeEdge.value = null
+  document.removeEventListener('mousemove', handleDrag)
+  document.removeEventListener('mouseup', stopDrag)
+  document.removeEventListener('mousemove', handleResize)
+}
+
+const startResize = (event: MouseEvent, trackId: number, edge: 'start' | 'end') => {
+  event.stopPropagation()
+  const track = props.tracks.find(t => t.id === trackId)
+  if (!track) return
+
+  isResizing.value = true
+  selectedTrackId.value = trackId
+  resizeEdge.value = edge
+  dragStartX.value = event.clientX
+  dragStartTime.value = edge === 'start' ? track.startTime : track.startTime + track.duration
+
+  document.addEventListener('mousemove', handleResize)
+  document.addEventListener('mouseup', stopDrag)
+}
+
+const handleResize = (event: MouseEvent) => {
+  if (!isResizing.value || !selectedTrackId.value || !resizeEdge.value) return
+
+  const track = props.tracks.find(t => t.id === selectedTrackId.value)
+  if (!track) return
+
+  const timeline = document.querySelector('.track-timeline')
+  if (!timeline) return
+
+  const rect = timeline.getBoundingClientRect()
+  const deltaX = event.clientX - dragStartX.value
+  const deltaTime = (deltaX / rect.width) * localTotalDuration.value
+
+  const updatedTracks = props.tracks.map(t => {
+    if (t.id === selectedTrackId.value) {
+      if (resizeEdge.value === 'start') {
+        let newStartTime = dragStartTime.value + deltaTime
+        newStartTime = Math.max(0, Math.min(newStartTime, t.startTime + t.duration - 0.5))
+        const newDuration = t.duration + (t.startTime - newStartTime)
+        return { ...t, startTime: newStartTime, duration: newDuration }
+      } else {
+        let newEndTime = dragStartTime.value + deltaTime
+        newEndTime = Math.max(t.startTime + 0.5, Math.min(newEndTime, localTotalDuration.value))
+        const newDuration = newEndTime - t.startTime
+        return { ...t, duration: newDuration }
+      }
+    }
+    return t
+  })
+  emit('updateTracks', updatedTracks)
+}
 </script>
 
 <template>
@@ -88,25 +220,47 @@ const updateDuration = () => {
         <button class="add-track-btn" @click="addTrack">+ Add Track</button>
       </div>
 
-      <div class="timeline-grid">
-        <div class="tracks">
+      <div class="timeline-container">
+        <div class="timeline-grid">
+          <div class="tracks">
           <div 
             v-for="track in tracks" 
             :key="track.id"
             class="track-row"
           >
             <div class="track-label">
-              {{ track.type }}
+              <select 
+                :value="track.type" 
+                @change="updateTrackType(($event.target as HTMLSelectElement).value as AnimationType)"
+                @click="selectTrack(track.id)"
+                class="track-type-select"
+              >
+                <option value="rotate">Rotate</option>
+                <option value="scale">Scale</option>
+                <option value="fade">Fade</option>
+                <option value="translate">Translate</option>
+              </select>
             </div>
             <div class="track-timeline">
               <div 
                 class="track-block"
+                :class="{ selected: selectedTrackId === track.id }"
                 :style="{
                   ...getTrackStyle(track),
                   backgroundColor: getTrackColor(track.type)
                 }"
+                @mousedown="startDrag($event, track.id)"
+                @click="selectTrack(track.id)"
               >
-                <span class="track-duration">{{ track.duration }}s</span>
+                <div 
+                  class="resize-handle resize-start"
+                  @mousedown.stop="startResize($event, track.id, 'start')"
+                ></div>
+                <span class="track-duration">{{ track.duration.toFixed(1) }}s</span>
+                <div 
+                  class="resize-handle resize-end"
+                  @mousedown.stop="startResize($event, track.id, 'end')"
+                ></div>
               </div>
             </div>
             <button class="remove-track-btn" @click="removeTrack(track.id)">×</button>
@@ -126,6 +280,12 @@ const updateDuration = () => {
           >
             {{ marker }}s
           </div>
+        </div>
+      </div>
+
+      <div v-if="selectedTrack" class="track-editor">
+          <h4>Edit Animation</h4>
+          <p class="wip-message">WIP</p>
         </div>
       </div>
     </div>
@@ -197,7 +357,13 @@ h3 {
   background: var(--action-color-hover);
 }
 
+.timeline-container {
+  display: flex;
+  gap: 1rem;
+}
+
 .timeline-grid {
+  flex: 1;
   position: relative;
 }
 
@@ -216,10 +382,19 @@ h3 {
 }
 
 .track-label {
-  width: 80px;
+  width: 100px;
   font-size: 0.75rem;
-  color: var(--text-secondary);
-  text-transform: capitalize;
+}
+
+.track-type-select {
+  width: 100%;
+  padding: 0.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  cursor: pointer;
 }
 
 .track-timeline {
@@ -249,8 +424,39 @@ h3 {
   opacity: 0.8;
 }
 
+.track-block.selected {
+  outline: 2px solid white;
+  outline-offset: -2px;
+}
+
 .track-duration {
   pointer-events: none;
+  user-select: none;
+}
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  background: rgba(255, 255, 255, 0.3);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.track-block:hover .resize-handle {
+  opacity: 1;
+}
+
+.resize-start {
+  left: 0;
+  border-radius: 4px 0 0 4px;
+}
+
+.resize-end {
+  right: 0;
+  border-radius: 0 4px 4px 0;
 }
 
 .remove-track-btn {
@@ -290,5 +496,49 @@ h3 {
   font-size: 0.625rem;
   color: var(--text-secondary);
   transform: translateX(-50%);
+}
+
+.track-editor {
+  width: 200px;
+  padding: 1rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.track-editor h4 {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.editor-field {
+  margin-bottom: 0.75rem;
+}
+
+.editor-field label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.editor-field select,
+.editor-field input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.wip-message {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-style: italic;
 }
 </style>
