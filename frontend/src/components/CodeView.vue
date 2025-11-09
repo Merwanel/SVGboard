@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { Shape } from '@/types/shapes'
+import type { Shape, AnimationTrack } from '@/types/shapes'
 
 const props = defineProps<{
   shapes: Shape[]
@@ -9,18 +9,46 @@ const props = defineProps<{
 const copied = ref(false)
 const isExpanded = ref(false)
 
+const generateAnimations = (shape: Shape) => {
+  if (!shape.animations || shape.animations.length === 0) return ''
+  
+  let animCode = ''
+  shape.animations.forEach((track: AnimationTrack) => {
+    if (track.type === 'rotate') {
+      const cx = shape.type === 'rectangle' ? shape.x + (shape.width || 0) / 2 : shape.x
+      const cy = shape.type === 'rectangle' ? shape.y + (shape.height || 0) / 2 : shape.y
+      animCode += `    <animateTransform attributeName="transform" type="rotate" from="${track.values.from || 0} ${cx} ${cy}" to="${track.values.to || 360} ${cx} ${cy}" begin="${track.startTime}s" dur="${track.duration}s" repeatCount="indefinite" additive="sum" />\n`
+    } else if (track.type === 'scale') {
+      animCode += `    <animateTransform attributeName="transform" type="scale" from="${track.values.from || 1}" to="${track.values.to || 1.5}" begin="${track.startTime}s" dur="${track.duration}s" repeatCount="indefinite" additive="sum" />\n`
+    } else if (track.type === 'fade') {
+      animCode += `    <animate attributeName="opacity" from="${track.values.from || 1}" to="${track.values.to || 0}" begin="${track.startTime}s" dur="${track.duration}s" repeatCount="indefinite" />\n`
+    } else if (track.type === 'translate') {
+      animCode += `    <animateTransform attributeName="transform" type="translate" from="0 0" to="${track.values.x || 0} ${track.values.y || 0}" begin="${track.startTime}s" dur="${track.duration}s" repeatCount="indefinite" additive="sum" />\n`
+    }
+  })
+  return animCode
+}
+
 const svgCode = computed(() => {
   let code = '<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">\n'
   
   props.shapes.forEach(shape => {
     if (shape.type === 'rectangle') {
-      code += `  <rect x="${shape.x}" y="${shape.y}" width="${shape.width}" height="${shape.height}" fill="${shape.fill}" />\n`
+      code += `  <rect x="${shape.x}" y="${shape.y}" width="${shape.width}" height="${shape.height}" fill="${shape.fill}">\n`
+      code += generateAnimations(shape)
+      code += `  </rect>\n`
     } else if (shape.type === 'circle') {
-      code += `  <circle cx="${shape.x}" cy="${shape.y}" r="${shape.radius}" fill="${shape.fill}" />\n`
+      code += `  <circle cx="${shape.x}" cy="${shape.y}" r="${shape.radius}" fill="${shape.fill}">\n`
+      code += generateAnimations(shape)
+      code += `  </circle>\n`
     } else if (shape.type === 'line') {
-      code += `  <line x1="${shape.x}" y1="${shape.y}" x2="${shape.x2}" y2="${shape.y2}" stroke="${shape.fill}" stroke-width="3" />\n`
+      code += `  <line x1="${shape.x}" y1="${shape.y}" x2="${shape.x2}" y2="${shape.y2}" stroke="${shape.fill}" stroke-width="3">\n`
+      code += generateAnimations(shape)
+      code += `  </line>\n`
     } else if (shape.type === 'ellipse') {
-      code += `  <ellipse cx="${shape.x}" cy="${shape.y}" rx="${shape.radiusX}" ry="${shape.radiusY}" fill="${shape.fill}" />\n`
+      code += `  <ellipse cx="${shape.x}" cy="${shape.y}" rx="${shape.radiusX}" ry="${shape.radiusY}" fill="${shape.fill}">\n`
+      code += generateAnimations(shape)
+      code += `  </ellipse>\n`
     }
   })
   

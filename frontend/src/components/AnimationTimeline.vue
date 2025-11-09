@@ -21,6 +21,7 @@ const isResizing = ref(false)
 const dragStartX = ref(0)
 const dragStartTime = ref(0)
 const resizeEdge = ref<'start' | 'end' | null>(null)
+const isCollapsed = ref(false)
 
 const timeMarkers = computed(() => {
   const markers = []
@@ -66,6 +67,10 @@ const removeTrack = (trackId: number) => {
 
 const updateDuration = () => {
   emit('updateTotalDuration', localTotalDuration.value)
+}
+
+const toggleCollapse = () => {
+  isCollapsed.value = !isCollapsed.value
 }
 
 const selectedTrack = computed(() => {
@@ -196,13 +201,18 @@ const handleResize = (event: MouseEvent) => {
 </script>
 
 <template>
-  <div class="animation-timeline">
+  <div class="animation-timeline" :class="{ collapsed: isCollapsed }">
     <div class="timeline-header">
       <h3>Animation Timeline</h3>
+      <button class="collapse-toggle" @click="toggleCollapse" :title="isCollapsed ? 'Expand' : 'Collapse'">
+        {{ isCollapsed ? '▲' : '▼' }}
+      </button>
+    </div>
+
+    <div v-if="!isCollapsed">
       <div v-if="selectedShapeId === null" class="no-selection">
         Select a shape to add animations
       </div>
-    </div>
 
     <div v-if="selectedShapeId !== null" class="timeline-content">
       <div class="timeline-controls">
@@ -289,24 +299,77 @@ const handleResize = (event: MouseEvent) => {
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .animation-timeline {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   padding: 1rem;
-  background: var(--bg-secondary);
+  background: rgba(45, 45, 45, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-top: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  z-index: 100;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+:root[data-theme="light"] .animation-timeline {
+  background: rgba(245, 245, 245, 0.92);
+}
+
+:root[data-theme="dark"] .animation-timeline {
+  background: rgba(45, 45, 45, 0.92);
+}
+
+:root[data-theme="solar"] .animation-timeline {
+  background: rgba(238, 232, 213, 0.92);
+}
+
+.animation-timeline.collapsed {
+  padding: 0.5rem 1rem;
 }
 
 .timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1rem;
 }
 
+.animation-timeline.collapsed .timeline-header {
+  margin-bottom: 0;
+}
+
 h3 {
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   font-size: 0.875rem;
   color: var(--text-primary);
+}
+
+.collapse-toggle {
+  background: var(--action-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.collapse-toggle:hover {
+  background: var(--action-color-hover);
 }
 
 .no-selection {
@@ -391,7 +454,7 @@ h3 {
   padding: 0.25rem;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  background: var(--bg-secondary);
+  background: rgba(0, 0, 0, 0.3);
   color: var(--text-primary);
   font-size: 0.75rem;
   cursor: pointer;
@@ -400,7 +463,7 @@ h3 {
 .track-timeline {
   flex: 1;
   height: 100%;
-  background: var(--bg-primary);
+  background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--border-color);
   border-radius: 4px;
   position: relative;
@@ -501,7 +564,7 @@ h3 {
 .track-editor {
   width: 200px;
   padding: 1rem;
-  background: var(--bg-primary);
+  background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border-color);
   border-radius: 4px;
 }
@@ -529,7 +592,7 @@ h3 {
   padding: 0.5rem;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  background: var(--bg-secondary);
+  background: rgba(0, 0, 0, 0.3);
   color: var(--text-primary);
   font-size: 0.875rem;
 }

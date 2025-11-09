@@ -259,7 +259,56 @@ const getResizeHandles = (shape: Shape) => {
       :stroke-width="shape.strokeWidth || 2"
       class="shape"
       @mousedown="startDrag($event, shape.id)"
-    />
+    >
+      <template v-if="shape.animations">
+        <animateTransform
+          v-for="track in shape.animations.filter(t => t.type === 'rotate')"
+          :key="`${shape.id}-${track.id}`"
+          attributeName="transform"
+          type="rotate"
+          :from="`${track.values.from || 0} ${shape.x + (shape.width || 0) / 2} ${shape.y + (shape.height || 0) / 2}`"
+          :to="`${track.values.to || 360} ${shape.x + (shape.width || 0) / 2} ${shape.y + (shape.height || 0) / 2}`"
+          :begin="`${track.startTime}s`"
+          :dur="`${track.duration}s`"
+          repeatCount="indefinite"
+          additive="sum"
+        />
+        <animateTransform
+          v-for="track in shape.animations.filter(t => t.type === 'scale')"
+          :key="`${shape.id}-${track.id}`"
+          attributeName="transform"
+          type="scale"
+          :from="`${track.values.from || 1}`"
+          :to="`${track.values.to || 1.5}`"
+          :begin="`${track.startTime}s`"
+          :dur="`${track.duration}s`"
+          repeatCount="indefinite"
+          additive="sum"
+        />
+        <animate
+          v-for="track in shape.animations.filter(t => t.type === 'fade')"
+          :key="`${shape.id}-${track.id}`"
+          attributeName="opacity"
+          :from="`${track.values.from || 1}`"
+          :to="`${track.values.to || 0}`"
+          :begin="`${track.startTime}s`"
+          :dur="`${track.duration}s`"
+          repeatCount="indefinite"
+        />
+        <animateTransform
+          v-for="track in shape.animations.filter(t => t.type === 'translate')"
+          :key="`${shape.id}-${track.id}`"
+          attributeName="transform"
+          type="translate"
+          :from="`0 0`"
+          :to="`${track.values.x || 0} ${track.values.y || 0}`"
+          :begin="`${track.startTime}s`"
+          :dur="`${track.duration}s`"
+          repeatCount="indefinite"
+          additive="sum"
+        />
+      </template>
+    </rect>
     <circle
       v-for="shape in shapes.filter(s => s.type === 'circle')"
       :key="shape.id"
@@ -271,7 +320,56 @@ const getResizeHandles = (shape: Shape) => {
       :stroke-width="shape.strokeWidth || 2"
       class="shape"
       @mousedown="startDrag($event, shape.id)"
-    />
+    >
+      <template v-if="shape.animations">
+        <animateTransform
+          v-for="track in shape.animations.filter(t => t.type === 'rotate')"
+          :key="`${shape.id}-${track.id}`"
+          attributeName="transform"
+          type="rotate"
+          :from="`${track.values.from || 0} ${shape.x} ${shape.y}`"
+          :to="`${track.values.to || 360} ${shape.x} ${shape.y}`"
+          :begin="`${track.startTime}s`"
+          :dur="`${track.duration}s`"
+          repeatCount="indefinite"
+          additive="sum"
+        />
+        <animateTransform
+          v-for="track in shape.animations.filter(t => t.type === 'scale')"
+          :key="`${shape.id}-${track.id}`"
+          attributeName="transform"
+          type="scale"
+          :from="`${track.values.from || 1}`"
+          :to="`${track.values.to || 1.5}`"
+          :begin="`${track.startTime}s`"
+          :dur="`${track.duration}s`"
+          repeatCount="indefinite"
+          additive="sum"
+        />
+        <animate
+          v-for="track in shape.animations.filter(t => t.type === 'fade')"
+          :key="`${shape.id}-${track.id}`"
+          attributeName="opacity"
+          :from="`${track.values.from || 1}`"
+          :to="`${track.values.to || 0}`"
+          :begin="`${track.startTime}s`"
+          :dur="`${track.duration}s`"
+          repeatCount="indefinite"
+        />
+        <animateTransform
+          v-for="track in shape.animations.filter(t => t.type === 'translate')"
+          :key="`${shape.id}-${track.id}`"
+          attributeName="transform"
+          type="translate"
+          :from="`0 0`"
+          :to="`${track.values.x || 0} ${track.values.y || 0}`"
+          :begin="`${track.startTime}s`"
+          :dur="`${track.duration}s`"
+          repeatCount="indefinite"
+          additive="sum"
+        />
+      </template>
+    </circle>
     <line
       v-for="shape in shapes.filter(s => s.type === 'line')"
       :key="shape.id"
@@ -296,7 +394,56 @@ const getResizeHandles = (shape: Shape) => {
       :stroke-width="shape.strokeWidth || 2"
       class="shape"
       @mousedown="startDrag($event, shape.id)"
-    />
+    >
+      <template v-if="shape.animations">
+        <animateTransform
+          v-for="track in shape.animations.filter(t => t.type === 'rotate')"
+          :key="`${shape.id}-${track.id}`"
+          attributeName="transform"
+          type="rotate"
+          :from="`${track.values.from || 0} ${shape.x} ${shape.y}`"
+          :to="`${track.values.to || 360} ${shape.x} ${shape.y}`"
+          :begin="`${track.startTime}s`"
+          :dur="`${track.duration}s`"
+          repeatCount="indefinite"
+          additive="sum"
+        />
+        <animateTransform
+          v-for="track in shape.animations.filter(t => t.type === 'scale')"
+          :key="`${shape.id}-${track.id}`"
+          attributeName="transform"
+          type="scale"
+          :from="`${track.values.from || 1}`"
+          :to="`${track.values.to || 1.5}`"
+          :begin="`${track.startTime}s`"
+          :dur="`${track.duration}s`"
+          repeatCount="indefinite"
+          additive="sum"
+        />
+        <animate
+          v-for="track in shape.animations.filter(t => t.type === 'fade')"
+          :key="`${shape.id}-${track.id}`"
+          attributeName="opacity"
+          :from="`${track.values.from || 1}`"
+          :to="`${track.values.to || 0}`"
+          :begin="`${track.startTime}s`"
+          :dur="`${track.duration}s`"
+          repeatCount="indefinite"
+        />
+        <animateTransform
+          v-for="track in shape.animations.filter(t => t.type === 'translate')"
+          :key="`${shape.id}-${track.id}`"
+          attributeName="transform"
+          type="translate"
+          :from="`0 0`"
+          :to="`${track.values.x || 0} ${track.values.y || 0}`"
+          :begin="`${track.startTime}s`"
+          :dur="`${track.duration}s`"
+          repeatCount="indefinite"
+          additive="sum"
+        />
+      </template>
+    </ellipse>
 
     <g v-if="selectedShape !== null">
       <template v-for="shape in shapes.filter(s => s.id === selectedShape)" :key="`handles-${shape.id}`">

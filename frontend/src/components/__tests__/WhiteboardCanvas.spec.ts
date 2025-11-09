@@ -59,4 +59,30 @@ describe('WhiteboardCanvas', () => {
     
     expect(emittedAfterResize).toBeGreaterThan(emittedBeforeResize)
   })
+
+  it('renders animation elements for shapes with animations', () => {
+    const shapeWithAnimation = {
+      ...mockShape,
+      animations: [
+        {
+          id: 1,
+          type: 'rotate' as const,
+          startTime: 0,
+          duration: 2,
+          values: { from: 0, to: 360 }
+        }
+      ]
+    }
+
+    const wrapper = mount(WhiteboardCanvas, {
+      props: {
+        selectedTool: 'select',
+        strokeColor: '#000000',
+        fillColor: '#42b983',
+        initialShapes: [shapeWithAnimation]
+      }
+    })
+
+    expect(wrapper.find('animateTransform').exists()).toBe(true)
+  })
 })
