@@ -7,10 +7,13 @@ const props = defineProps<{
   projectId: number | null
   shapes: Shape[]
   hasUnsavedChanges: boolean
+  autoSaveEnabled: boolean
+  lastSaveType: 'manual' | 'auto'
 }>()
 
 const emit = defineEmits<{
   saved: []
+  toggleAutoSave: []
 }>()
 
 const { createSnapshot, error } = useSnapshots()
@@ -26,8 +29,11 @@ const statusClass = computed(() => {
 const statusText = computed(() => {
   if (error.value) return `Error: ${error.value}`
   if (isSaving.value) return 'Saving...'
-  if (props.hasUnsavedChanges) return 'Unsaved changes'
-  return 'All changes saved'
+  if (props.hasUnsavedChanges) {
+    return props.autoSaveEnabled ? 'Auto-saving...' : 'Unsaved changes'
+  }
+  if (props.lastSaveType === 'auto') return 'Auto-saved'
+  return 'Saved'
 })
 
 const handleSave = async () => {
@@ -53,13 +59,21 @@ const handleSave = async () => {
       {{ statusText }}
     </span>
     <button
-      v-if="hasUnsavedChanges"
+      v-if="hasUnsavedChanges && !autoSaveEnabled"
       @click="handleSave"
       :disabled="isSaving"
       class="save-button"
     >
       {{ isSaving ? 'Saving...' : 'Save' }}
     </button>
+    <label class="auto-save-toggle">
+      <input 
+        type="checkbox" 
+        :checked="autoSaveEnabled"
+        @change="emit('toggleAutoSave')"
+      />
+      <span>Auto-save</span>
+    </label>
   </div>
 </template>
 
@@ -110,5 +124,18 @@ const handleSave = async () => {
 .save-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.auto-save-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.auto-save-toggle input[type="checkbox"] {
+  cursor: pointer;
 }
 </style>

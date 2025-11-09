@@ -13,11 +13,15 @@ const currentProjectId = ref<number | null>(null)
 const selectedShapeId = ref<number | null>(null)
 const hasUnsavedChanges = ref(false)
 const isLoading = ref(true)
+const autoSaveEnabled = ref(true)
+const lastSaveType = ref<'manual' | 'auto'>('manual')
 
 const { 
   createProject, fetchLatestProject, fetchProjectById, deleteProject, fetchProjects
 } = useProjects()
-const { fetchSnapshots } = useSnapshots()
+const { fetchSnapshots, createSnapshot } = useSnapshots()
+
+let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null
 
 onMounted(async () => {
   
@@ -57,6 +61,24 @@ onMounted(async () => {
 
 watch(shapes, () => {
   hasUnsavedChanges.value = true
+  
+  if (autoSaveEnabled.value && currentProjectId.value) {
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout)
+    }
+    
+    autoSaveTimeout = setTimeout(async () => {
+      if (hasUnsavedChanges.value && currentProjectId.value) {
+        try {
+          await createSnapshot(currentProjectId.value, shapes.value)
+          hasUnsavedChanges.value = false
+          lastSaveType.value = 'auto'
+        } catch (err) {
+          console.error('Auto-save failed:', err)
+        }
+      }
+    }, 2000)
+  }
 }, { deep: true })
 
 const handleShapesUpdated = (updatedShapes: Shape[]) => {
@@ -69,6 +91,15 @@ const handleShapeSelected = (shapeId: number | null) => {
 
 const handleSaved = () => {
   hasUnsavedChanges.value = false
+  lastSaveType.value = 'manual'
+}
+
+const toggleAutoSave = () => {
+  autoSaveEnabled.value = !autoSaveEnabled.value
+  if (!autoSaveEnabled.value && autoSaveTimeout) {
+    clearTimeout(autoSaveTimeout)
+    autoSaveTimeout = null
+  }
 }
 
 const handleRestore = (_snapshotId: number, shapesData: string) => {
@@ -163,7 +194,10 @@ const handleCreateProject = async (title: string) => {
           :project-id="currentProjectId"
           :shapes="shapes"
           :has-unsaved-changes="hasUnsavedChanges"
+          :auto-save-enabled="autoSaveEnabled"
+          :last-save-type="lastSaveType"
           @saved="handleSaved"
+          @toggle-auto-save="toggleAutoSave"
         />
       </div>
       <div class="main-content">

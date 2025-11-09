@@ -12,12 +12,14 @@ vi.mock('@/composables/useSnapshots', () => ({
 describe('SaveStatusIndicator', () => {
   const mockCreateSnapshot = vi.fn()
 
-  const createWrapper = (hasUnsavedChanges: boolean, shapes: Shape[] = []) => {
+  const createWrapper = (hasUnsavedChanges: boolean, shapes: Shape[] = [], autoSaveEnabled = true) => {
     return mount(SaveStatusIndicator, {
       props: {
         projectId: 1,
         shapes,
-        hasUnsavedChanges
+        hasUnsavedChanges,
+        autoSaveEnabled,
+        lastSaveType: 'manual'
       }
     })
   }
@@ -46,18 +48,23 @@ describe('SaveStatusIndicator', () => {
     expect(wrapper.find('.status-saved').exists()).toBe(true)
   })
 
-  it('should show save button when has unsaved changes', () => {
-    const wrapper = createWrapper(true)
+  it('should hide save button when auto-save is enabled', () => {
+    const wrapper = createWrapper(true, [], true)
+
+    expect(wrapper.find('.save-button').exists()).toBe(false)
+  })
+  
+  it('should show save button when has unsaved changes and auto-save disabled', () => {
+    const wrapper = createWrapper(true, [], false)
 
     expect(wrapper.find('.save-button').exists()).toBe(true)
-    expect(wrapper.find('.status-unsaved').exists()).toBe(true)
   })
 
   it('should call createSnapshot when save button clicked', async () => {
     mockCreateSnapshot.mockResolvedValue({})
 
     const shapes = [{ id: 1, type: 'rectangle' as ShapeType, x: 10, y: 20, fill: '#000' }]
-    const wrapper = createWrapper(true, shapes)
+    const wrapper = createWrapper(true, shapes, false)
 
     await wrapper.find('.save-button').trigger('click')
 
@@ -67,11 +74,19 @@ describe('SaveStatusIndicator', () => {
   it('should emit saved event after successful save', async () => {
     mockCreateSnapshot.mockResolvedValue({})
 
-    const wrapper = createWrapper(true)
+    const wrapper = createWrapper(true, [], false)
 
     await wrapper.find('.save-button').trigger('click')
     await wrapper.vm.$nextTick()
 
     expect(wrapper.emitted('saved')).toBeTruthy()
+  })
+  
+  it('should emit toggle-auto-save when checkbox clicked', async () => {
+    const wrapper = createWrapper(false)
+    
+    await wrapper.find('.auto-save-toggle input').trigger('change')
+    
+    expect(wrapper.emitted('toggleAutoSave')).toBeTruthy()
   })
 })
