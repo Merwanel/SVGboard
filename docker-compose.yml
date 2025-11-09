@@ -10,6 +10,7 @@ services:
       - mysql-data:/var/lib/mysql
 
   backend:
+    image: ghcr.io/merwanel/svgboard-backend:latest
     build: ./backend
     ports:
       - "8080:8080"
@@ -21,6 +22,7 @@ services:
       - mysql
 
   frontend:
+    image: ghcr.io/merwanel/svgboard-frontend:latest
     build: ./frontend
     ports:
       - "80:80"

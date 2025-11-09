@@ -5,17 +5,34 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v4
     
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+    
     - name: Build Backend Docker Image
-      run: docker build -t svgboard-backend ./backend
+      run: |
+        OWNER="${{ github.repository_owner }}"
+        docker build -t ghcr.io/${OWNER,,}/svgboard-backend:latest ./backend
     
     - name: Build Frontend Docker Image
-      run: docker build -t svgboard-frontend ./frontend
+      run: |
+        OWNER="${{ github.repository_owner }}"
+        docker build -t ghcr.io/${OWNER,,}/svgboard-frontend:latest ./frontend
+    
+    - name: Push Backend Image
+      run: |
+        OWNER="${{ github.repository_owner }}"
+        docker push ghcr.io/${OWNER,,}/svgboard-backend:latest
+    
+    - name: Push Frontend Image
+      run: |
+        OWNER="${{ github.repository_owner }}"
+        docker push ghcr.io/${OWNER,,}/svgboard-frontend:latest
     
     - name: Test Docker Compose
       run: docker compose config
