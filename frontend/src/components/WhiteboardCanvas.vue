@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { Shape, ShapeType, Tool } from '@/types/shapes'
+import type { Shape, ShapeType, Tool, AnimationTrack } from '@/types/shapes'
 
 const props = defineProps<{
   selectedTool: Tool
@@ -237,6 +237,10 @@ const getResizeHandles = (shape: Shape) => {
   }
   return []
 }
+
+const getAnimationKey = (shapeId: number, trackId: number, track: AnimationTrack) => {
+  return `${shapeId}-${trackId}-${track.startTime}-${track.duration}-${JSON.stringify(track.values)}-${track.repeat}-${track.freeze}`
+}
 </script>
 
 <template>
@@ -263,48 +267,52 @@ const getResizeHandles = (shape: Shape) => {
       <template v-if="shape.animations">
         <animateTransform
           v-for="track in shape.animations.filter(t => t.type === 'rotate')"
-          :key="`${shape.id}-${track.id}`"
+          :key="getAnimationKey(shape.id, track.id, track)"
           attributeName="transform"
           type="rotate"
           :from="`${track.values.from || 0} ${shape.x + (shape.width || 0) / 2} ${shape.y + (shape.height || 0) / 2}`"
           :to="`${track.values.to || 360} ${shape.x + (shape.width || 0) / 2} ${shape.y + (shape.height || 0) / 2}`"
           :begin="`${track.startTime}s`"
           :dur="`${track.duration}s`"
-          repeatCount="indefinite"
+          :repeatCount="track.repeat ? 'indefinite' : '1'"
+          :fill="track.freeze ?? true ? 'freeze' : 'remove'"
           additive="sum"
         />
         <animateTransform
           v-for="track in shape.animations.filter(t => t.type === 'scale')"
-          :key="`${shape.id}-${track.id}`"
+          :key="getAnimationKey(shape.id, track.id, track)"
           attributeName="transform"
           type="scale"
           :from="`${track.values.from || 1}`"
           :to="`${track.values.to || 1.5}`"
           :begin="`${track.startTime}s`"
           :dur="`${track.duration}s`"
-          repeatCount="indefinite"
+          :repeatCount="track.repeat ? 'indefinite' : '1'"
+          :fill="track.freeze ?? true ? 'freeze' : 'remove'"
           additive="sum"
         />
         <animate
           v-for="track in shape.animations.filter(t => t.type === 'fade')"
-          :key="`${shape.id}-${track.id}`"
+          :key="getAnimationKey(shape.id, track.id, track)"
           attributeName="opacity"
           :from="`${track.values.from || 1}`"
           :to="`${track.values.to || 0}`"
           :begin="`${track.startTime}s`"
           :dur="`${track.duration}s`"
-          repeatCount="indefinite"
+          :repeatCount="track.repeat ? 'indefinite' : '1'"
+          :fill="track.freeze ?? true ? 'freeze' : 'remove'"
         />
         <animateTransform
           v-for="track in shape.animations.filter(t => t.type === 'translate')"
-          :key="`${shape.id}-${track.id}`"
+          :key="getAnimationKey(shape.id, track.id, track)"
           attributeName="transform"
           type="translate"
           :from="`0 0`"
           :to="`${track.values.x || 0} ${track.values.y || 0}`"
           :begin="`${track.startTime}s`"
           :dur="`${track.duration}s`"
-          repeatCount="indefinite"
+          :repeatCount="track.repeat ? 'indefinite' : '1'"
+          :fill="track.freeze ?? true ? 'freeze' : 'remove'"
           additive="sum"
         />
       </template>
@@ -324,48 +332,52 @@ const getResizeHandles = (shape: Shape) => {
       <template v-if="shape.animations">
         <animateTransform
           v-for="track in shape.animations.filter(t => t.type === 'rotate')"
-          :key="`${shape.id}-${track.id}`"
+          :key="getAnimationKey(shape.id, track.id, track)"
           attributeName="transform"
           type="rotate"
           :from="`${track.values.from || 0} ${shape.x} ${shape.y}`"
           :to="`${track.values.to || 360} ${shape.x} ${shape.y}`"
           :begin="`${track.startTime}s`"
           :dur="`${track.duration}s`"
-          repeatCount="indefinite"
+          :repeatCount="track.repeat ? 'indefinite' : '1'"
+          :fill="track.freeze ?? true ? 'freeze' : 'remove'"
           additive="sum"
         />
         <animateTransform
           v-for="track in shape.animations.filter(t => t.type === 'scale')"
-          :key="`${shape.id}-${track.id}`"
+          :key="getAnimationKey(shape.id, track.id, track)"
           attributeName="transform"
           type="scale"
           :from="`${track.values.from || 1}`"
           :to="`${track.values.to || 1.5}`"
           :begin="`${track.startTime}s`"
           :dur="`${track.duration}s`"
-          repeatCount="indefinite"
+          :repeatCount="track.repeat ? 'indefinite' : '1'"
+          :fill="track.freeze ?? true ? 'freeze' : 'remove'"
           additive="sum"
         />
         <animate
           v-for="track in shape.animations.filter(t => t.type === 'fade')"
-          :key="`${shape.id}-${track.id}`"
+          :key="getAnimationKey(shape.id, track.id, track)"
           attributeName="opacity"
           :from="`${track.values.from || 1}`"
           :to="`${track.values.to || 0}`"
           :begin="`${track.startTime}s`"
           :dur="`${track.duration}s`"
-          repeatCount="indefinite"
+          :repeatCount="track.repeat ? 'indefinite' : '1'"
+          :fill="track.freeze ?? true ? 'freeze' : 'remove'"
         />
         <animateTransform
           v-for="track in shape.animations.filter(t => t.type === 'translate')"
-          :key="`${shape.id}-${track.id}`"
+          :key="getAnimationKey(shape.id, track.id, track)"
           attributeName="transform"
           type="translate"
           :from="`0 0`"
           :to="`${track.values.x || 0} ${track.values.y || 0}`"
           :begin="`${track.startTime}s`"
           :dur="`${track.duration}s`"
-          repeatCount="indefinite"
+          :repeatCount="track.repeat ? 'indefinite' : '1'"
+          :fill="track.freeze ?? true ? 'freeze' : 'remove'"
           additive="sum"
         />
       </template>
@@ -398,48 +410,52 @@ const getResizeHandles = (shape: Shape) => {
       <template v-if="shape.animations">
         <animateTransform
           v-for="track in shape.animations.filter(t => t.type === 'rotate')"
-          :key="`${shape.id}-${track.id}`"
+          :key="getAnimationKey(shape.id, track.id, track)"
           attributeName="transform"
           type="rotate"
           :from="`${track.values.from || 0} ${shape.x} ${shape.y}`"
           :to="`${track.values.to || 360} ${shape.x} ${shape.y}`"
           :begin="`${track.startTime}s`"
           :dur="`${track.duration}s`"
-          repeatCount="indefinite"
+          :repeatCount="track.repeat ? 'indefinite' : '1'"
+          :fill="track.freeze ?? true ? 'freeze' : 'remove'"
           additive="sum"
         />
         <animateTransform
           v-for="track in shape.animations.filter(t => t.type === 'scale')"
-          :key="`${shape.id}-${track.id}`"
+          :key="getAnimationKey(shape.id, track.id, track)"
           attributeName="transform"
           type="scale"
           :from="`${track.values.from || 1}`"
           :to="`${track.values.to || 1.5}`"
           :begin="`${track.startTime}s`"
           :dur="`${track.duration}s`"
-          repeatCount="indefinite"
+          :repeatCount="track.repeat ? 'indefinite' : '1'"
+          :fill="track.freeze ?? true ? 'freeze' : 'remove'"
           additive="sum"
         />
         <animate
           v-for="track in shape.animations.filter(t => t.type === 'fade')"
-          :key="`${shape.id}-${track.id}`"
+          :key="getAnimationKey(shape.id, track.id, track)"
           attributeName="opacity"
           :from="`${track.values.from || 1}`"
           :to="`${track.values.to || 0}`"
           :begin="`${track.startTime}s`"
           :dur="`${track.duration}s`"
-          repeatCount="indefinite"
+          :repeatCount="track.repeat ? 'indefinite' : '1'"
+          :fill="track.freeze ?? true ? 'freeze' : 'remove'"
         />
         <animateTransform
           v-for="track in shape.animations.filter(t => t.type === 'translate')"
-          :key="`${shape.id}-${track.id}`"
+          :key="getAnimationKey(shape.id, track.id, track)"
           attributeName="transform"
           type="translate"
           :from="`0 0`"
           :to="`${track.values.x || 0} ${track.values.y || 0}`"
           :begin="`${track.startTime}s`"
           :dur="`${track.duration}s`"
-          repeatCount="indefinite"
+          :repeatCount="track.repeat ? 'indefinite' : '1'"
+          :fill="track.freeze ?? true ? 'freeze' : 'remove'"
           additive="sum"
         />
       </template>

@@ -21,6 +21,8 @@ export interface AnimationTrack {
     x?: number
     y?: number
   }
+  freeze?: boolean
+  repeat?: boolean
 }
 
 export interface Shape {

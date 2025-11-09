@@ -36,6 +36,6 @@ describe('AnimationTimeline', () => {
 
     await wrapper.find('.track-block').trigger('click')
     
-    expect(wrapper.find('.track-editor h4').text()).toBe('Edit Animation')
+    expect(wrapper.find('.track-editor h4').text().toLowerCase()).toBe('edit ' + mockTracks[0]?.type.toLowerCase())
   })
 })

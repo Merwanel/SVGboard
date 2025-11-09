@@ -56,7 +56,9 @@ const addTrack = () => {
     type: 'rotate',
     startTime: 0,
     duration: 2,
-    values: { from: 0, to: 360 }
+    values: { from: 0, to: 360 },
+    freeze: true,
+    repeat: false
   }
   emit('updateTracks', [...props.tracks, newTrack])
 }
@@ -87,6 +89,27 @@ const updateTrackType = (type: AnimationType) => {
     if (t.id === selectedTrackId.value) {
       const defaultValues = getDefaultValues(type)
       return { ...t, type, values: defaultValues }
+    }
+    return t
+  })
+  emit('updateTracks', updatedTracks)
+}
+
+const updateTrackValues = (key: string, value: number) => {
+  if (!selectedTrack.value) return
+  const updatedTracks = props.tracks.map(t => {
+    if (t.id === selectedTrackId.value) {
+      return { ...t, values: { ...t.values, [key]: value } }
+    }
+    return t
+  })
+  emit('updateTracks', updatedTracks)
+}
+
+const updateTrackOption = (trackId: number, field: 'freeze' | 'repeat', value: boolean) => {
+  const updatedTracks = props.tracks.map(t => {
+    if (t.id === trackId) {
+      return { ...t, [field]: value }
     }
     return t
   })
@@ -236,44 +259,54 @@ const handleResize = (event: MouseEvent) => {
           <div 
             v-for="track in tracks" 
             :key="track.id"
-            class="track-row"
+            class="track-wrapper"
           >
-            <div class="track-label">
-              <select 
-                :value="track.type" 
-                @change="updateTrackType(($event.target as HTMLSelectElement).value as AnimationType)"
-                @click="selectTrack(track.id)"
-                class="track-type-select"
-              >
-                <option value="rotate">Rotate</option>
-                <option value="scale">Scale</option>
-                <option value="fade">Fade</option>
-                <option value="translate">Translate</option>
-              </select>
-            </div>
-            <div class="track-timeline">
-              <div 
-                class="track-block"
-                :class="{ selected: selectedTrackId === track.id }"
-                :style="{
-                  ...getTrackStyle(track),
-                  backgroundColor: getTrackColor(track.type)
-                }"
-                @mousedown="startDrag($event, track.id)"
-                @click="selectTrack(track.id)"
-              >
-                <div 
-                  class="resize-handle resize-start"
-                  @mousedown.stop="startResize($event, track.id, 'start')"
-                ></div>
-                <span class="track-duration">{{ track.duration.toFixed(1) }}s</span>
-                <div 
-                  class="resize-handle resize-end"
-                  @mousedown.stop="startResize($event, track.id, 'end')"
-                ></div>
+            <div class="track-row">
+              <div class="track-label">
+                <select 
+                  :value="track.type" 
+                  @change="updateTrackType(($event.target as HTMLSelectElement).value as AnimationType)"
+                  @click="selectTrack(track.id)"
+                  class="track-type-select"
+                >
+                  <option value="rotate">Rotate</option>
+                  <option value="scale">Scale</option>
+                  <option value="fade">Fade</option>
+                  <option value="translate">Translate</option>
+                </select>
+                <div class="track-options">
+                  <button 
+                    class="mode-toggle"
+                    @click="updateTrackOption(track.id, 'repeat', !(track.repeat ?? false))"
+                  >
+                    {{ track.repeat ? 'Repeat' : 'Freeze' }}
+                  </button>
+                </div>
               </div>
+              <div class="track-timeline">
+                <div 
+                  class="track-block"
+                  :class="{ selected: selectedTrackId === track.id }"
+                  :style="{
+                    ...getTrackStyle(track),
+                    backgroundColor: getTrackColor(track.type)
+                  }"
+                  @mousedown="startDrag($event, track.id)"
+                  @click="selectTrack(track.id)"
+                >
+                  <div 
+                    class="resize-handle resize-start"
+                    @mousedown.stop="startResize($event, track.id, 'start')"
+                  ></div>
+                  <span class="track-duration">{{ track.duration.toFixed(1) }}s</span>
+                  <div 
+                    class="resize-handle resize-end"
+                    @mousedown.stop="startResize($event, track.id, 'end')"
+                  ></div>
+                </div>
+              </div>
+              <button class="remove-track-btn" @click="removeTrack(track.id)">×</button>
             </div>
-            <button class="remove-track-btn" @click="removeTrack(track.id)">×</button>
           </div>
 
           <div v-if="tracks.length === 0" class="empty-tracks">
@@ -294,9 +327,117 @@ const handleResize = (event: MouseEvent) => {
       </div>
 
       <div v-if="selectedTrack" class="track-editor">
-          <h4>Edit Animation</h4>
-          <p class="wip-message">WIP</p>
+        <h4>Edit {{ selectedTrack.type.charAt(0).toUpperCase() + selectedTrack.type.slice(1) }}</h4>
+        
+        <div class="editor-field">
+          <label>Type</label>
+          <select 
+            :value="selectedTrack.type" 
+            @change="updateTrackType(($event.target as HTMLSelectElement).value as AnimationType)"
+          >
+            <option value="rotate">Rotate</option>
+            <option value="scale">Scale</option>
+            <option value="fade">Fade</option>
+            <option value="translate">Translate</option>
+          </select>
         </div>
+
+        <div v-if="selectedTrack.type === 'rotate'" class="editor-values">
+          <div class="editor-field">
+            <label>From</label>
+            <input 
+              type="number" 
+              :value="selectedTrack.values.from"
+              @input="updateTrackValues('from', Number(($event.target as HTMLInputElement).value))"
+            />
+            <span class="unit">degrees</span>
+          </div>
+          <div class="editor-field">
+            <label>To</label>
+            <input 
+              type="number" 
+              :value="selectedTrack.values.to"
+              @input="updateTrackValues('to', Number(($event.target as HTMLInputElement).value))"
+            />
+            <span class="unit">degrees</span>
+          </div>
+        </div>
+
+        <div v-if="selectedTrack.type === 'scale'" class="editor-values">
+          <div class="editor-field">
+            <label>From</label>
+            <input 
+              type="number" 
+              step="0.1"
+              :value="selectedTrack.values.from"
+              @input="updateTrackValues('from', Number(($event.target as HTMLInputElement).value))"
+            />
+            <span class="unit">×</span>
+          </div>
+          <div class="editor-field">
+            <label>To</label>
+            <input 
+              type="number" 
+              step="0.1"
+              :value="selectedTrack.values.to"
+              @input="updateTrackValues('to', Number(($event.target as HTMLInputElement).value))"
+            />
+            <span class="unit">×</span>
+          </div>
+        </div>
+
+        <div v-if="selectedTrack.type === 'fade'" class="editor-values">
+          <div class="editor-field">
+            <label>From</label>
+            <input 
+              type="number" 
+              step="0.1"
+              min="0"
+              max="1"
+              :value="selectedTrack.values.from"
+              @input="updateTrackValues('from', Number(($event.target as HTMLInputElement).value))"
+            />
+            <span class="unit">opacity</span>
+          </div>
+          <div class="editor-field">
+            <label>To</label>
+            <input 
+              type="number" 
+              step="0.1"
+              min="0"
+              max="1"
+              :value="selectedTrack.values.to"
+              @input="updateTrackValues('to', Number(($event.target as HTMLInputElement).value))"
+            />
+            <span class="unit">opacity</span>
+          </div>
+        </div>
+
+        <div v-if="selectedTrack.type === 'translate'" class="editor-values">
+          <div class="editor-field">
+            <label>X</label>
+            <input 
+              type="number" 
+              :value="selectedTrack.values.x"
+              @input="updateTrackValues('x', Number(($event.target as HTMLInputElement).value))"
+            />
+            <span class="unit">px</span>
+          </div>
+          <div class="editor-field">
+            <label>Y</label>
+            <input 
+              type="number" 
+              :value="selectedTrack.values.y"
+              @input="updateTrackValues('y', Number(($event.target as HTMLInputElement).value))"
+            />
+            <span class="unit">px</span>
+          </div>
+        </div>
+
+        <button class="remove-track-btn-editor" @click="removeTrack(selectedTrack.id)">
+          Remove Track
+        </button>
+      </div>
       </div>
     </div>
     </div>
@@ -416,6 +557,7 @@ h3 {
 
 .timeline-container {
   display: flex;
+  flex-direction: column;
   gap: 1rem;
 }
 
@@ -427,8 +569,14 @@ h3 {
 .tracks {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
   min-height: 100px;
+}
+
+.track-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .track-row {
@@ -438,9 +586,39 @@ h3 {
   height: 40px;
 }
 
+.track-options {
+  display: flex;
+  gap: 1rem;
+  padding-left: 1px;
+  font-size: 0.7rem;
+}
+
+.mode-toggle {
+  padding: 0.25rem 0.5rem;
+  background: var(--action-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  user-select: none;
+}
+
+.mode-toggle:hover {
+  background: var(--action-color-hover);
+}
+
 .track-label {
   width: 100px;
   font-size: 0.75rem;
+}
+
+select option {
+  margin: 40px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
 }
 
 .track-type-select {
@@ -556,17 +734,18 @@ h3 {
 }
 
 .track-editor {
-  width: 200px;
+  margin-top: 1rem;
   padding: 1rem;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--border-color);
   border-radius: 4px;
 }
 
 .track-editor h4 {
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.75rem 0;
   font-size: 0.875rem;
   color: var(--text-primary);
+  font-weight: 600;
 }
 
 .editor-field {
@@ -578,24 +757,52 @@ h3 {
   font-size: 0.75rem;
   color: var(--text-secondary);
   margin-bottom: 0.25rem;
+  font-weight: 500;
 }
 
 .editor-field select,
 .editor-field input {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.4rem;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--bg-primary);
   color: var(--text-primary);
-  font-size: 0.875rem;
+  font-size: 0.75rem;
 }
 
-.wip-message {
-  padding: 1rem;
-  text-align: center;
+.editor-field input[type="number"] {
+  width: calc(100% - 40px);
+  display: inline-block;
+}
+
+.editor-field .unit {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
-  font-size: 0.875rem;
-  font-style: italic;
+  width: 35px;
+}
+
+.editor-values {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.remove-track-btn-editor {
+  width: 100%;
+  padding: 0.5rem;
+  background: rgba(255, 0, 0, 0.1);
+  color: #ff4444;
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background 0.2s ease;
+}
+
+.remove-track-btn-editor:hover {
+  background: rgba(255, 0, 0, 0.2);
 }
 </style>

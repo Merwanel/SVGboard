@@ -14,16 +14,19 @@ const generateAnimations = (shape: Shape) => {
   
   let animCode = ''
   shape.animations.forEach((track: AnimationTrack) => {
+    const repeatCount = track.repeat ? 'indefinite' : '1'
+    const fill = (track.freeze ?? true) ? 'freeze' : 'remove'
+    
     if (track.type === 'rotate') {
       const cx = shape.type === 'rectangle' ? shape.x + (shape.width || 0) / 2 : shape.x
       const cy = shape.type === 'rectangle' ? shape.y + (shape.height || 0) / 2 : shape.y
-      animCode += `    <animateTransform attributeName="transform" type="rotate" from="${track.values.from || 0} ${cx} ${cy}" to="${track.values.to || 360} ${cx} ${cy}" begin="${track.startTime}s" dur="${track.duration}s" repeatCount="indefinite" additive="sum" />\n`
+      animCode += `    <animateTransform attributeName="transform" type="rotate" from="${track.values.from || 0} ${cx} ${cy}" to="${track.values.to || 360} ${cx} ${cy}" begin="${track.startTime}s" dur="${track.duration}s" repeatCount="${repeatCount}" fill="${fill}" additive="sum" />\n`
     } else if (track.type === 'scale') {
-      animCode += `    <animateTransform attributeName="transform" type="scale" from="${track.values.from || 1}" to="${track.values.to || 1.5}" begin="${track.startTime}s" dur="${track.duration}s" repeatCount="indefinite" additive="sum" />\n`
+      animCode += `    <animateTransform attributeName="transform" type="scale" from="${track.values.from || 1}" to="${track.values.to || 1.5}" begin="${track.startTime}s" dur="${track.duration}s" repeatCount="${repeatCount}" fill="${fill}" additive="sum" />\n`
     } else if (track.type === 'fade') {
-      animCode += `    <animate attributeName="opacity" from="${track.values.from || 1}" to="${track.values.to || 0}" begin="${track.startTime}s" dur="${track.duration}s" repeatCount="indefinite" />\n`
+      animCode += `    <animate attributeName="opacity" from="${track.values.from || 1}" to="${track.values.to || 0}" begin="${track.startTime}s" dur="${track.duration}s" repeatCount="${repeatCount}" fill="${fill}" />\n`
     } else if (track.type === 'translate') {
-      animCode += `    <animateTransform attributeName="transform" type="translate" from="0 0" to="${track.values.x || 0} ${track.values.y || 0}" begin="${track.startTime}s" dur="${track.duration}s" repeatCount="indefinite" additive="sum" />\n`
+      animCode += `    <animateTransform attributeName="transform" type="translate" from="0 0" to="${track.values.x || 0} ${track.values.y || 0}" begin="${track.startTime}s" dur="${track.duration}s" repeatCount="${repeatCount}" fill="${fill}" additive="sum" />\n`
     }
   })
   return animCode
