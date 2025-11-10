@@ -63,6 +63,7 @@ public class SnapshotService {
         return toResponse(saved);
     }
     
+    @Transactional
     public void deleteAllSnapshots(Long projectId) {
         if (!projectRepository.existsById(projectId)) {
             throw new RuntimeException("Project not found with id: " + projectId);
