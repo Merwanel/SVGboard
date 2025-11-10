@@ -28,7 +28,7 @@ public class Project {
     private LocalDateTime updatedAt;
     
     @OneToMany
-    @JoinColumn(name = "project_id")
+    @JoinColumn(name = "project_id", insertable = false, updatable = false)
     @OrderBy("createdAt DESC")
     private List<Snapshot> snapshots = new ArrayList<>();
     
