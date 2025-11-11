@@ -22,22 +22,11 @@ A full-stack web application for creating and animating SVG graphics with versio
 
 ## Tech Stack
 
-**Frontend**
-- Vue 3  + TypeScript
-- Vite build system
-- Axios for API calls
-- Vitest
+**Frontend** : Vue 3 (TypeScript) , Vitest
 
-**Backend**
-- Spring Boot + Java 
-- MySQL with Flyway migrations
-- JPA/Hibernate
-- JUnit 5 + H2 for testing
+**Backend** : Spring Boot (Java) , MySQL , JUnit 5 + H2 for testing
 
-**DevOps**
-- Docker Compose
-- GitHub Actions CI/CD
-- Codecov integration
+**DevOps** : GitHub Actions CI/CD , Docker Compose ,  Codecov integration
 
 ## API Endpoints
 
