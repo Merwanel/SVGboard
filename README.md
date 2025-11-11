@@ -7,6 +7,9 @@ A full-stack web application for creating and animating SVG graphics with versio
 | **Backend** | [![Backend Tests](https://github.com/Merwanel/SVGboard/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/Merwanel/SVGboard/actions/workflows/backend-tests.yml) | [![codecov](https://codecov.io/gh/Merwanel/SVGboard/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/Merwanel/SVGboard) |
 | **Frontend** | [![Frontend Tests](https://github.com/Merwanel/SVGboard/actions/workflows/frontend-tests.yml/badge.svg)](https://github.com/Merwanel/SVGboard/actions/workflows/frontend-tests.yml) | [![codecov](https://codecov.io/gh/Merwanel/SVGboard/branch/main/graph/badge.svg?flag=frontend)](https://codecov.io/gh/Merwanel/SVGboard) |
 
+
+![architecture diagram](diag.svg)
+
 ## Features
 
 - **RESTful API**: CRUD operations for projects and snapshots
