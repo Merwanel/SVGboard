@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { formatDate } from '@/utils/dateFormat'
-import SvgPreview from './SvgPreview.vue'
+import SvgPreview from '@/components/common/SvgPreview.vue'
 import SnapshotItem from './SnapshotItem.vue'
 import type { SnapshotResponse } from '@/types/api'
 

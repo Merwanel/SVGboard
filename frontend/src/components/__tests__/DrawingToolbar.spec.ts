@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import DrawingToolbar from '../DrawingToolbar.vue'
+import DrawingToolbar from '@/components/canvas/DrawingToolbar.vue'
 
 describe('DrawingToolbar', () => {
   it('updates stroke color when color picker changes', async () => {

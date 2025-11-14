@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import AnimationPanel from '../AnimationPanel.vue'
+import AnimationPanel from '@/components/animation/AnimationPanel.vue'
 
 describe('AnimationPanel', () => {
   

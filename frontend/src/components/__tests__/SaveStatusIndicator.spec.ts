@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { ref } from 'vue'
-import SaveStatusIndicator from '../SaveStatusIndicator.vue'
+import SaveStatusIndicator from '@/components/common/SaveStatusIndicator.vue'
 import { useSnapshots } from '@/composables/useSnapshots'
 import type { Shape, ShapeType } from '@/types/shapes'
 

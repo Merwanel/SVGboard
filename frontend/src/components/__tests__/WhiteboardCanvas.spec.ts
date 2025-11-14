@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import WhiteboardCanvas from '../WhiteboardCanvas.vue'
+import WhiteboardCanvas from '@/components/canvas/WhiteboardCanvas.vue'
 
 describe('WhiteboardCanvas', () => {
   const mockShape = {

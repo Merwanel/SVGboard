@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DrawingToolbar from './DrawingToolbar.vue'
+import DrawingToolbar from '@/components/canvas/DrawingToolbar.vue'
 import type { Shape } from '@/types/shapes'
 
 defineProps<{

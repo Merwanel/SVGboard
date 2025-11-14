@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import SvgPreview from '../SvgPreview.vue'
+import SvgPreview from '@/components/common/SvgPreview.vue'
 import type { Shape } from '@/types/shapes'
 
 describe('SvgPreview', () => {
