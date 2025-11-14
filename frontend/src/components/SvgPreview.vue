@@ -46,6 +46,8 @@ const viewBox = computed(() => {
           :width="shape.width"
           :height="shape.height"
           :fill="shape.fill"
+          :stroke="shape.stroke"
+          :stroke-width="shape.strokeWidth"
         />
         <circle
           v-else-if="shape.type === 'circle'"
@@ -53,6 +55,8 @@ const viewBox = computed(() => {
           :cy="shape.y"
           :r="shape.radius"
           :fill="shape.fill"
+          :stroke="shape.stroke"
+          :stroke-width="shape.strokeWidth"
         />
         <ellipse
           v-else-if="shape.type === 'ellipse'"
@@ -61,6 +65,8 @@ const viewBox = computed(() => {
           :rx="shape.radiusX"
           :ry="shape.radiusY"
           :fill="shape.fill"
+          :stroke="shape.stroke"
+          :stroke-width="shape.strokeWidth"
         />
         <line
           v-else-if="shape.type === 'line'"
@@ -68,8 +74,8 @@ const viewBox = computed(() => {
           :y1="shape.y"
           :x2="shape.x2"
           :y2="shape.y2"
-          :stroke="shape.fill"
-          stroke-width="2"
+          :stroke="shape.stroke || shape.fill"
+          :stroke-width="shape.strokeWidth || 2"
         />
       </template>
     </svg>
