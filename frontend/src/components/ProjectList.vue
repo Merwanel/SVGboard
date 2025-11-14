@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useProjects } from '@/composables/useProjects'
 import { useSnapshots } from '@/composables/useSnapshots'
-import SvgPreview from './SvgPreview.vue'
+import ProjectItem from './ProjectItem.vue'
 import type { SnapshotResponse } from '@/types/api'
 
 const emit = defineEmits<{
@@ -68,25 +68,7 @@ const handleRestoreSnapshot = (snapshotId: number, shapesData: string) => {
   emit('restoreSnapshot', snapshotId, shapesData)
 }
 
-const getLatestSnapshotData = (project: { lastShapesData?: string }): string => {
-  return project.lastShapesData || '[]'
-}
 
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMs / 3600000)
-  const diffDays = Math.floor(diffMs / 86400000)
-  
-  if (diffMins < 1) return 'Just now'
-  if (diffMins < 60) return `${diffMins}m ago`
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays < 7) return `${diffDays}d ago`
-  
-  return date.toLocaleDateString()
-}
 </script>
 
 <template>
@@ -110,57 +92,17 @@ const formatDate = (dateString: string): string => {
     </div>
 
     <div v-else class="projects">
-      <div
+      <ProjectItem
         v-for="project in filteredProjects"
         :key="project.id"
-        class="project-wrapper"
-      >
-        <div class="project-item" @click="handleOpenProject(project.id)">
-          <button
-            class="expand-toggle"
-            @click.stop="toggleProjectExpand(project.id)"
-            :title="expandedProjectId === project.id ? 'Collapse' : 'Expand snapshots'"
-          >
-            {{ expandedProjectId === project.id ? '▼' : '▶' }}
-          </button>
-          <div class="project-preview">
-            <SvgPreview
-              :shapes-data="getLatestSnapshotData(project)"
-              size="large"
-            />
-          </div>
-          <div class="project-info">
-            <h3 class="project-title">{{ project.title }}</h3>
-            <p class="project-date">{{ formatDate(project.updatedAt) }}</p>
-          </div>
-          <button
-            class="delete-btn"
-            @click.stop="handleDeleteProject(project.id)"
-            title="Delete project"
-          >
-            ×
-          </button>
-        </div>
-        
-        <div v-if="expandedProjectId === project.id" class="snapshots-list">
-          <div
-            v-for="snapshot in projectSnapshots[project.id]"
-            :key="snapshot.id"
-            class="snapshot-item"
-            @click="handleRestoreSnapshot(snapshot.id, snapshot.shapesData)"
-          >
-            <div class="snapshot-preview">
-              <SvgPreview
-                :shapes-data="snapshot.shapesData"
-                size="small"
-              />
-            </div>
-            <div class="snapshot-info">
-              <p class="snapshot-date">{{ formatDate(snapshot.createdAt) }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+        :project="project"
+        :is-expanded="expandedProjectId === project.id"
+        :snapshots="projectSnapshots[project.id]"
+        @open="handleOpenProject"
+        @delete="handleDeleteProject"
+        @toggle-expand="toggleProjectExpand"
+        @restore-snapshot="handleRestoreSnapshot"
+      />
     </div>
 
     <div class="create-project">
@@ -220,96 +162,6 @@ const formatDate = (dateString: string): string => {
   gap: 1rem;
 }
 
-.project-wrapper {
-  display: flex;
-  flex-direction: column;
-}
-
-.project-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.project-item:hover {
-  border-color: var(--action-color);
-  background: var(--action-color-light);
-}
-
-.expand-toggle {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  font-size: 0.75rem;
-  padding: 0.25rem;
-  transition: color 0.2s ease;
-  flex-shrink: 0;
-}
-
-.expand-toggle:hover {
-  color: var(--action-color);
-}
-
-.project-preview {
-  flex-shrink: 0;
-}
-
-.project-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.project-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.delete-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: rgba(255, 0, 0, 0.1);
-  color: #ff4444;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1.25rem;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: all 0.2s ease;
-}
-
-.project-item:hover .delete-btn {
-  opacity: 1;
-}
-
-.delete-btn:hover {
-  background: rgba(255, 0, 0, 0.2);
-}
-
-.project-date {
-  margin: 0.25rem 0 0 0;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
 .create-project {
   margin-top: 1rem;
   display: flex;
@@ -348,45 +200,5 @@ const formatDate = (dateString: string): string => {
   background: var(--action-color-hover);
 }
 
-.snapshots-list {
-  margin-left: 2rem;
-  margin-top: 0.5rem;
-  padding-left: 1rem;
-  border-left: 2px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
 
-.snapshot-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: var(--bg-secondary);
-}
-
-.snapshot-item:hover {
-  border-color: var(--action-color);
-  background: var(--action-color-medium);
-}
-
-.snapshot-preview {
-  flex-shrink: 0;
-}
-
-.snapshot-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.snapshot-date {
-  margin: 0;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
 </style>
