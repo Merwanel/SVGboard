@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import CodeView from './CodeView.vue'
-import ProjectList from './ProjectList.vue'
-import AnimationTimeline from './AnimationTimeline.vue'
+import ProjectList from '@/components/project/ProjectList.vue';
+import AnimationTimeline from '@/components/animation/AnimationTimeline.vue'
 import type { Shape, AnimationTrack } from '@/types/shapes'
 
 const props = defineProps<{

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Shape, ShapeType, Tool } from '@/types/shapes'
 import { useShapeInteractions } from '@/composables/useShapeInteractions'
 import ShapeRenderer from './ShapeRenderer.vue'
@@ -17,6 +17,10 @@ const selectedShape = ref<number | null>(null)
 let nextId = props.initialShapes.length > 0 
   ? Math.max(...props.initialShapes.map(s => s.id)) + 1 
   : 1
+
+const selectedShapeObject = computed(() => 
+  shapes.value.find(s => s.id === selectedShape.value) ?? null
+)
 
 const emit = defineEmits<{
   shapesUpdated: [shapes: Shape[]]
@@ -110,10 +114,9 @@ const handleShapeDrag = (event: MouseEvent, shapeId: number) => {
     </g>
 
     <ResizeHandles
-      v-if="selectedShape !== null"
-      v-for="shape in shapes.filter(s => s.id === selectedShape)"
-      :key="`handles-${shape.id}`"
-      :shape="shape"
+      v-if="selectedShapeObject"
+      :key="`handles-${selectedShapeObject.id}`"
+      :shape="selectedShapeObject"
       @start-resize="startResize"
     />
   </svg>

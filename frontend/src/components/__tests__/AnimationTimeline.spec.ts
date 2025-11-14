@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { mount, VueWrapper } from '@vue/test-utils'
-import AnimationTimeline from '../AnimationTimeline.vue'
+import AnimationTimeline from '@/components//animation/AnimationTimeline.vue'
 
 describe('AnimationTimeline', () => {
   const mockShapeId = 1

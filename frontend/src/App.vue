@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
-import LeftPanel from './components/LeftPanel.vue'
-import RightPanel from './components/RightPanel.vue'
-import SaveStatusIndicator from './components/SaveStatusIndicator.vue'
-import Theme from './components/Theme.vue'
+import LeftPanel from '@/components/layout/LeftPanel.vue'
+import RightPanel from '@/components/layout/RightPanel.vue'
+import SaveStatusIndicator from '@/components/common/SaveStatusIndicator.vue'
+import Theme from '@/components/common/Theme.vue'
 import { useProjects } from '@/composables/useProjects'
 import { useSnapshots } from '@/composables/useSnapshots'
 import type { Shape } from '@/types/shapes'

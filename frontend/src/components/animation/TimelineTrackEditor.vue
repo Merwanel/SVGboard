@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { AnimationTrack, AnimationType } from '@/types/shapes'
 
-const props = defineProps<{
+defineProps<{
   track: AnimationTrack
 }>()
 

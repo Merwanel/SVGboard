@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { ref } from 'vue'
-import ProjectList from '../ProjectList.vue'
+import ProjectList from '@/components/project/ProjectList.vue'
 import { useProjects } from '@/composables/useProjects'
 import { useSnapshots } from '@/composables/useSnapshots'
 

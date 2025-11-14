@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { ref } from 'vue'
-import HistoryView from '../HistoryView.vue'
+import HistoryView from '@/components/layout/HistoryView.vue'
 import { useSnapshots } from '@/composables/useSnapshots'
 
 vi.mock('@/composables/useSnapshots', () => ({
