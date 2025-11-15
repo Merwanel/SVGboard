@@ -264,6 +264,9 @@ const handleCreateProject = async (title: string) => {
   --bg-secondary: #f5f5f5;
   --text-primary: #333333;
   --text-secondary: #666666;
+  --text-muted: #999999;
+  --text-warning: #d97706;
+  --text-error: #dc2626;
   --border-color: #e0e0e0;
   --theme-toggle-bg: #ffffff;
   --theme-toggle-color: #333333;
@@ -278,6 +281,9 @@ const handleCreateProject = async (title: string) => {
   --bg-secondary: #2d2d2d;
   --text-primary: #e0e0e0;
   --text-secondary: #a0a0a0;
+  --text-muted: #707070;
+  --text-warning: #fbbf24;
+  --text-error: #f87171;
   --border-color: #404040;
   --theme-toggle-bg: #2d2d2d;
   --theme-toggle-color: #e0e0e0;
@@ -292,6 +298,9 @@ const handleCreateProject = async (title: string) => {
   --bg-secondary: #eee8d5;
   --text-primary: #657b83;
   --text-secondary: #93a1a1;
+  --text-muted: #b8bfc6;
+  --text-warning: #b58900;
+  --text-error: #dc322f;
   --border-color: #d3cbb7;
   --theme-toggle-bg: #eee8d5;
   --theme-toggle-color: #b58900;
@@ -301,7 +310,7 @@ const handleCreateProject = async (title: string) => {
   --action-color-medium: rgba(66, 185, 131, 0.1);
 }
 
-body {
+body, button, input {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);

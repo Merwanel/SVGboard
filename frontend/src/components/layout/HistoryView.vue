@@ -92,7 +92,7 @@ h3 {
 }
 
 .error {
-  color: var(--color-error);
+  color: var(--text-error);
 }
 
 .snapshot-list {
@@ -123,7 +123,7 @@ h3 {
 .restore-button {
   padding: 6px 12px;
   font-size: 13px;
-  background: var(--color-primary);
+  background: var(--bg-primary);
   color: white;
   border: none;
   border-radius: 4px;

@@ -83,7 +83,7 @@ const handleSave = async () => {
   align-items: center;
   gap: 12px;
   padding: 8px 16px;
-  background: var(--color-background-soft);
+  background: var(--bg-primary);
   border-radius: 4px;
 }
 
@@ -92,26 +92,25 @@ const handleSave = async () => {
 }
 
 .status-saved {
-  color: var(--color-text-muted);
+  color: var(--text-muted);
 }
 
 .status-unsaved {
-  color: var(--color-warning);
+  color: var(--text-warning);
 }
 
 .status-saving {
-  color: var(--color-text);
+  color: var(--text-primary);
 }
 
 .status-error {
-  color: var(--color-error);
+  color: var(--text-error);
 }
 
 .save-button {
   padding: 4px 12px;
   font-size: 14px;
-  background: var(--color-primary);
-  color: white;
+  background: var(--bg-primary);
   border: none;
   border-radius: 4px;
   cursor: pointer;
