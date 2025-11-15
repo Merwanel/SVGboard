@@ -1,30 +1,27 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import LeftPanel from '@/components/layout/LeftPanel.vue'
 import RightPanel from '@/components/layout/RightPanel.vue'
 import SaveStatusIndicator from '@/components/common/SaveStatusIndicator.vue'
 import Theme from '@/components/common/Theme.vue'
 import { useProjects } from '@/composables/useProjects'
 import { useSnapshots } from '@/composables/useSnapshots'
+import { useSaveManager } from '@/composables/useSaveManager'
 import type { Shape } from '@/types/shapes'
 
 const shapes = ref<Shape[]>([])
 const currentProjectId = ref<number | null>(null)
 const selectedShapeId = ref<number | null>(null)
-const hasUnsavedChanges = ref(false)
 const isLoading = ref(true)
-const autoSaveEnabled = ref(true)
-const lastSaveType = ref<'manual' | 'auto'>('manual')
 
 const { 
   createProject, fetchLatestProject, fetchProjectById, deleteProject, fetchProjects
 } = useProjects()
-const { fetchSnapshots, createSnapshot } = useSnapshots()
+const { fetchSnapshots } = useSnapshots()
 
-let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null
+const saveManager = useSaveManager(currentProjectId, shapes)
 
 onMounted(async () => {
-  
   try {
     const project = await fetchLatestProject()
     if (project) {
@@ -41,6 +38,7 @@ onMounted(async () => {
         // No snapshots, canvas stays empty
         shapes.value = []
       }
+      saveManager.markAsSaved()
     }
   } catch (err) {
     try {
@@ -48,6 +46,7 @@ onMounted(async () => {
       if (newProject) {
         currentProjectId.value = newProject.id
         shapes.value = []
+        saveManager.markAsSaved()
       }
     } catch (createErr) {
       console.error('Failed to create project:', err, createErr)
@@ -57,30 +56,6 @@ onMounted(async () => {
   }
 })
 
-
-
-watch(shapes, () => {
-  hasUnsavedChanges.value = true
-  
-  if (autoSaveEnabled.value && currentProjectId.value) {
-    if (autoSaveTimeout) {
-      clearTimeout(autoSaveTimeout)
-    }
-    
-    autoSaveTimeout = setTimeout(async () => {
-      if (hasUnsavedChanges.value && currentProjectId.value) {
-        try {
-          await createSnapshot(currentProjectId.value, shapes.value)
-          hasUnsavedChanges.value = false
-          lastSaveType.value = 'auto'
-        } catch (err) {
-          console.error('Auto-save failed:', err)
-        }
-      }
-    }, 2000)
-  }
-}, { deep: true })
-
 const handleShapesUpdated = (updatedShapes: Shape[]) => {
   shapes.value = updatedShapes
 }
@@ -89,23 +64,10 @@ const handleShapeSelected = (shapeId: number | null) => {
   selectedShapeId.value = shapeId
 }
 
-const handleSaved = () => {
-  hasUnsavedChanges.value = false
-  lastSaveType.value = 'manual'
-}
-
-const toggleAutoSave = () => {
-  autoSaveEnabled.value = !autoSaveEnabled.value
-  if (!autoSaveEnabled.value && autoSaveTimeout) {
-    clearTimeout(autoSaveTimeout)
-    autoSaveTimeout = null
-  }
-}
-
 const handleRestore = (_snapshotId: number, shapesData: string) => {
   const parsed = JSON.parse(shapesData)
   shapes.value = Array.isArray(parsed) ? parsed : (parsed.shapes || [])
-  hasUnsavedChanges.value = false
+  saveManager.markAsSaved()
 }
 
 const handleOpenProject = async (projectId: number) => {
@@ -126,7 +88,7 @@ const handleOpenProject = async (projectId: number) => {
       } else {
         shapes.value = []
       }
-      hasUnsavedChanges.value = false
+      saveManager.markAsSaved()
     }
   } catch (err) {
     console.error('Failed to open project:', err)
@@ -159,7 +121,7 @@ const handleDeleteProject = async (projectId: number) => {
           shapes.value = []
         }
       }
-      hasUnsavedChanges.value = false
+      saveManager.markAsSaved()
     }
   } catch (err) {
     console.error('Failed to delete project:', err)
@@ -172,7 +134,7 @@ const handleCreateProject = async (title: string) => {
     if (newProject) {
       currentProjectId.value = newProject.id
       shapes.value = []
-      hasUnsavedChanges.value = false
+      saveManager.markAsSaved()
 
       await fetchProjects()
     }
@@ -191,13 +153,13 @@ const handleCreateProject = async (title: string) => {
     <template v-else>
       <div class="header">
         <SaveStatusIndicator 
-          :project-id="currentProjectId"
-          :shapes="shapes"
-          :has-unsaved-changes="hasUnsavedChanges"
-          :auto-save-enabled="autoSaveEnabled"
-          :last-save-type="lastSaveType"
-          @saved="handleSaved"
-          @toggle-auto-save="toggleAutoSave"
+          :status-text="saveManager.statusText.value"
+          :status-class="saveManager.statusClass.value"
+          :show-save-button="saveManager.showSaveButton.value"
+          :is-saving="saveManager.isSaving.value"
+          :auto-save-enabled="saveManager.autoSaveEnabled.value"
+          @save="() => saveManager.save('manual')"
+          @toggle-auto-save="saveManager.toggleAutoSave"
         />
       </div>
       <div class="main-content">

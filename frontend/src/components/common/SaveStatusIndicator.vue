@@ -1,66 +1,26 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useSnapshots } from '@/composables/useSnapshots'
-import type { Shape } from '@/types/shapes'
-
-const props = defineProps<{
-  projectId: number | null
-  shapes: Shape[]
-  hasUnsavedChanges: boolean
+defineProps<{
+  statusText: string
+  statusClass: 'saved' | 'unsaved' | 'saving' | 'error'
+  showSaveButton: boolean
+  isSaving: boolean
   autoSaveEnabled: boolean
-  lastSaveType: 'manual' | 'auto'
 }>()
 
 const emit = defineEmits<{
-  saved: []
+  save: []
   toggleAutoSave: []
 }>()
-
-const { createSnapshot, error } = useSnapshots()
-const isSaving = ref(false)
-
-const statusClass = computed(() => {
-  if (error.value) return 'status-error'
-  if (isSaving.value) return 'status-saving'
-  if (props.hasUnsavedChanges) return 'status-unsaved'
-  return 'status-saved'
-})
-
-const statusText = computed(() => {
-  if (error.value) return `Error: ${error.value}`
-  if (isSaving.value) return 'Saving...'
-  if (props.hasUnsavedChanges) {
-    return props.autoSaveEnabled ? 'Auto-saving...' : 'Unsaved changes'
-  }
-  if (props.lastSaveType === 'auto') return 'Auto-saved'
-  return 'Saved'
-})
-
-const handleSave = async () => {
-  if (!props.projectId) {
-    console.log('no projectId, no save')
-    return
-  }
-
-  isSaving.value = true
-
-  try {
-    await createSnapshot(props.projectId, props.shapes)
-    emit('saved')
-  } finally {
-    isSaving.value = false
-  }
-}
 </script>
 
 <template>
   <div class="save-status">
-    <span class="status-text" :class="statusClass">
+    <span class="status-text" :class="`status-${statusClass}`">
       {{ statusText }}
     </span>
     <button
-      v-if="hasUnsavedChanges && !autoSaveEnabled"
-      @click="handleSave"
+      v-if="showSaveButton"
+      @click="emit('save')"
       :disabled="isSaving"
       class="save-button"
     >
