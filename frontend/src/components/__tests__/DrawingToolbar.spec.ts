@@ -54,9 +54,9 @@ describe('DrawingToolbar', () => {
         shapes: []
       }
     })
-
-    const checkbox = wrapper.find('input[type="checkbox"]')
-    expect(checkbox.element.checked).toBe(true)
+    
+    const checkbox = wrapper.find('input[type="checkbox"]') 
+    expect((checkbox.element as HTMLInputElement).checked).toBe(true)
   })
 
   it('unchecks no fill when color picker is clicked', async () => {
@@ -70,6 +70,6 @@ describe('DrawingToolbar', () => {
     await colorPicker.trigger('click')
 
     const checkbox = wrapper.find('input[type="checkbox"]')
-    expect(checkbox.element.checked).toBe(false)
+    expect((checkbox.element as HTMLInputElement).checked).toBe(false)
   })
 })
