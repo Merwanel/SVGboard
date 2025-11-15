@@ -47,4 +47,29 @@ describe('DrawingToolbar', () => {
     const canvas = wrapper.findComponent({ name: 'WhiteboardCanvas' })
     expect(canvas.props('fillColor')).toBe('none')
   })
+
+  it('no fill checkbox is checked by default', () => {
+    const wrapper = mount(DrawingToolbar, {
+      props: {
+        shapes: []
+      }
+    })
+
+    const checkbox = wrapper.find('input[type="checkbox"]')
+    expect(checkbox.element.checked).toBe(true)
+  })
+
+  it('unchecks no fill when color picker is clicked', async () => {
+    const wrapper = mount(DrawingToolbar, {
+      props: {
+        shapes: []
+      }
+    })
+
+    const colorPicker = wrapper.find('#fill-color')
+    await colorPicker.trigger('click')
+
+    const checkbox = wrapper.find('input[type="checkbox"]')
+    expect(checkbox.element.checked).toBe(false)
+  })
 })

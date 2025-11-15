@@ -22,6 +22,10 @@ const selectTool = (tool: Tool) => {
   selectedTool.value = tool
 }
 
+const setFillTrue = () => {
+  noFill.value = false
+}
+
 const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value
 }
@@ -99,7 +103,7 @@ const handleShapeSelected = (shapeId: number | null) => {
             type="color" 
             v-model="fillColor"
             class="color-picker"
-            :disabled="noFill"
+            @click="setFillTrue()"
             title="Fill color"
           />
           <label class="no-fill-label">
