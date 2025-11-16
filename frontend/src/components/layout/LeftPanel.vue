@@ -77,7 +77,15 @@ const handleUpdateTotalDuration = (duration: number) => {
   if (props.selectedShapeId === null) return
   const updatedShapes = props.shapes.map((s: Shape) => {
     if (s.id === props.selectedShapeId) {
-      return { ...s, totalDuration: duration }
+      const trimmedTracks = (s.animations || []).map(track => {
+        const trackEnd = track.startTime + track.duration
+        if (trackEnd > duration) {
+          const newDuration = duration - track.startTime
+          return { ...track, duration: newDuration }
+        }
+        return track
+      }).filter(track => track.duration > 0)
+      return { ...s, totalDuration: duration, animations: trimmedTracks }
     }
     return s
   })

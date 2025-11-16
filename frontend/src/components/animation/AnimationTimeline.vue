@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { AnimationType, AnimationTrack } from '@/types/shapes'
 import { useTrackDragResize } from '@/composables/useTrackDragResize'
 import TimelineControls from './TimelineControls.vue'
@@ -28,6 +28,10 @@ const { startDrag, startResize } = useTrackDragResize(
   () => localTotalDuration.value,
   (tracks) => emit('updateTracks', tracks)
 )
+
+watch(() => props.totalDuration, (newDuration) => {
+  localTotalDuration.value = newDuration || 5
+})
 
 const addTrack = () => {
   const newTrack: AnimationTrack = {
