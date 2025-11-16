@@ -94,6 +94,7 @@ const viewBox = computed(() => {
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
+  background-color: var(--bg-primary);
 }
 
 .svg-preview--large {
