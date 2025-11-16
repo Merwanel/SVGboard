@@ -25,6 +25,7 @@ const selectedShapeObject = computed(() =>
 const emit = defineEmits<{
   shapesUpdated: [shapes: Shape[]]
   shapeSelected: [shapeId: number | null]
+  dragStarted: []
 }>()
 
 const { hasMoved, startDrag, handleDrag, stopDrag, startResize } = useShapeInteractions(
@@ -91,6 +92,7 @@ const handleCanvasClick = (event: MouseEvent) => {
 const handleShapeDrag = (event: MouseEvent, shapeId: number) => {
   selectedShape.value = shapeId
   emit('shapeSelected', shapeId)
+  emit('dragStarted')
   startDrag(event, shapeId)
 }
 

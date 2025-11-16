@@ -37,6 +37,10 @@ const handleShapesUpdated = (shapes: Shape[]) => {
 const handleShapeSelected = (shapeId: number | null) => {
   emit('shapeSelected', shapeId)
 }
+
+const handleDragStarted = () => {
+  selectedTool.value = 'select'
+}
 </script>
 
 <template>
@@ -120,6 +124,7 @@ const handleShapeSelected = (shapeId: number | null) => {
       :initial-shapes="shapes"
       @shapes-updated="handleShapesUpdated"
       @shape-selected="handleShapeSelected"
+      @drag-started="handleDragStarted"
     />
   </div>
 </template>
