@@ -1,5 +1,6 @@
 server : 
   port : 8080
+  
 spring :
   application :
     name : SVGboard
@@ -9,3 +10,11 @@ spring :
     password: my-secret-pw
   jpa:
     show-sql : true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+    health:
+      show-details: always

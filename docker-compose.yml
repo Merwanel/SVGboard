@@ -3,31 +3,82 @@ services:
     image: mysql:9.5.0
     environment:
       MYSQL_ROOT_PASSWORD: my-secret-pw
-      MYSQL_DATABASE: svgboard
+      MYSQL_DATABASE: history
     ports:
       - "3306:3306"
+    networks:
+      - my-net
     volumes:
       - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pmy-secret-pw", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   backend:
     image: ghcr.io/merwanel/svgboard-backend:latest
     build: ./backend
     ports:
       - "8080:8080"
+    networks:
+      - my-net
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/svgboard
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: my-secret-pw
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
 
   frontend:
     image: ghcr.io/merwanel/svgboard-frontend:latest
     build: ./frontend
     ports:
-      - "80:80"
+      - "5173:80"
+    networks:
+      - my-net
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
 
+
+  success-message:
+    image: alpine:3.22
+    container_name: success-message
+    networks:
+      - my-net
+    depends_on:
+      mysql:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    command: >
+      sh -c "
+      echo 'Application is available at: http://localhost:5173' &&
+      echo 'Spring Boot API running on: http://localhost:8080' &&
+      echo 'MySql is running on: localhost:3306' &&
+      echo '🔴 Ctrl+C to stop the app'
+      "
+    restart: "no"
 volumes:
   mysql-data:
+    driver: local
+networks:
+  my-net:
+    driver: bridge
