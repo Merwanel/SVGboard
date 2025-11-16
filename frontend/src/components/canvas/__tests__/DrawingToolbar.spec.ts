@@ -1,31 +1,103 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import DrawingToolbar from '../DrawingToolbar.vue'
+import DrawingToolbar from '@/components/canvas/DrawingToolbar.vue'
 
-describe('DrawingToolbar - drag to select', () => {
-  it('should switch tool to select when drag starts', async () => {
+describe('DrawingToolbar', () => {
+  it('updates stroke color when color picker changes', async () => {
     const wrapper = mount(DrawingToolbar, {
       props: {
-        shapes: [],
-      },
-      global: {
-        stubs: {
-          WhiteboardCanvas: {
-            name: 'WhiteboardCanvas',
-            template: '<div />',
-          },
-        },
-      },
+        shapes: []
+      }
     })
 
-    const rectangleButton = wrapper.get('[title="Rectangle"]')
-    await rectangleButton.trigger('click')
+    const colorPicker = wrapper.find('#stroke-color')
+    await colorPicker.setValue('#ff0000')
 
-    const canvas = wrapper.getComponent({ name: 'WhiteboardCanvas' })
-    canvas.vm.$emit('drag-started')
-    await wrapper.vm.$nextTick()
+    const canvas = wrapper.findComponent({ name: 'WhiteboardCanvas' })
+    expect(canvas.props('strokeColor')).toBe('#ff0000')
+  })
 
-    const selectButton = wrapper.get('[title="Select"]')
-    expect(selectButton.classes()).toContain('active')
+  it('updates fill color when color picker changes', async () => {
+    const wrapper = mount(DrawingToolbar, {
+      props: {
+        shapes: []
+      }
+    })
+
+    const checkbox = wrapper.find('input[type="checkbox"]')
+    await checkbox.setValue(false)
+
+    const colorPicker = wrapper.find('#fill-color')
+    await colorPicker.setValue('#00ff00')
+
+    const canvas = wrapper.findComponent({ name: 'WhiteboardCanvas' })
+    expect(canvas.props('fillColor')).toBe('#00ff00')
+  })
+
+  it('should by default, sets fill to none when no fill checkbox is checked', async () => {
+    const wrapper = mount(DrawingToolbar, {
+      props: {
+        shapes: []
+      }
+    })
+
+    const checkbox = wrapper.find('input[type="checkbox"]')
+    await checkbox.setValue(true)
+
+    const canvas = wrapper.findComponent({ name: 'WhiteboardCanvas' })
+    expect(canvas.props('fillColor')).toBe('none')
+  })
+
+  it('no fill checkbox is checked by default', () => {
+    const wrapper = mount(DrawingToolbar, {
+      props: {
+        shapes: []
+      }
+    })
+    
+    const checkbox = wrapper.find('input[type="checkbox"]') 
+    expect((checkbox.element as HTMLInputElement).checked).toBe(true)
+  })
+
+  it('unchecks no fill when color picker is clicked', async () => {
+    const wrapper = mount(DrawingToolbar, {
+      props: {
+        shapes: []
+      }
+    })
+
+    const colorPicker = wrapper.find('#fill-color')
+    await colorPicker.trigger('click')
+
+    const checkbox = wrapper.find('input[type="checkbox"]')
+    expect((checkbox.element as HTMLInputElement).checked).toBe(false)
+  })
+  
+  describe('DrawingToolbar - drag to select', () => {
+    it('should switch tool to select when drag starts', async () => {
+      const wrapper = mount(DrawingToolbar, {
+        props: {
+          shapes: [],
+        },
+        global: {
+          stubs: {
+            WhiteboardCanvas: {
+              name: 'WhiteboardCanvas',
+              template: '<div />',
+            },
+          },
+        },
+      })
+
+      const rectangleButton = wrapper.get('[title="Rectangle"]')
+      await rectangleButton.trigger('click')
+
+      const canvas = wrapper.getComponent({ name: 'WhiteboardCanvas' })
+      canvas.vm.$emit('drag-started')
+      await wrapper.vm.$nextTick()
+
+      const selectButton = wrapper.get('[title="Select"]')
+      expect(selectButton.classes()).toContain('active')
+    })
   })
 })
