@@ -15,7 +15,7 @@ const selectedShapeId = ref<number | null>(null)
 const isLoading = ref(true)
 
 const { 
-  createProject, fetchLatestProject, fetchProjectById, deleteProject, fetchProjects
+  createProject, fetchLatestProject, fetchProjectById, updateProject, deleteProject, fetchProjects
 } = useProjects()
 const { fetchSnapshots } = useSnapshots()
 
@@ -128,6 +128,19 @@ const handleDeleteProject = async (projectId: number) => {
   }
 }
 
+const handleEditProject = async (projectId: number, newTitle: string) => {
+  try {
+    const project = await fetchProjectById(projectId)
+    if (project) {
+      currentProjectId.value = project.id
+      project.title = newTitle     
+      await updateProject(projectId, newTitle); 
+    }
+  } catch (err) {
+    console.error('Failed to edit project:', err)
+  }
+}
+
 const handleCreateProject = async (title: string) => {
   try {
     const newProject = await createProject(title)
@@ -168,6 +181,7 @@ const handleCreateProject = async (title: string) => {
           :current-project-id="currentProjectId"
           :selected-shape-id="selectedShapeId"
           @open-project="handleOpenProject"
+          @edit-project="handleEditProject"
           @delete-project="handleDeleteProject"
           @create-project="handleCreateProject"
           @restore-snapshot="handleRestore"

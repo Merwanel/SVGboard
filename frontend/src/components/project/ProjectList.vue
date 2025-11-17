@@ -7,6 +7,7 @@ import type { SnapshotResponse } from '@/types/api'
 
 const emit = defineEmits<{
   openProject: [projectId: number]
+  editProject: [projectId: number, newTitle: string]
   deleteProject: [projectId: number]
   createProject: [title: string]
   restoreSnapshot: [snapshotId: number, shapesData: string]
@@ -36,6 +37,10 @@ const filteredProjects = computed(() => {
 
 const handleOpenProject = (projectId: number) => {
   emit('openProject', projectId)
+}
+
+const handleEditProject = (projectId: number, newTitle: string) => {
+  emit('editProject', projectId, newTitle)
 }
 
 const handleDeleteProject = (projectId: number) => {
@@ -99,6 +104,7 @@ const handleRestoreSnapshot = (snapshotId: number, shapesData: string) => {
         :is-expanded="expandedProjectId === project.id"
         :snapshots="projectSnapshots[project.id]"
         @open="handleOpenProject"
+        @edit="handleEditProject"
         @delete="handleDeleteProject"
         @toggle-expand="toggleProjectExpand"
         @restore-snapshot="handleRestoreSnapshot"

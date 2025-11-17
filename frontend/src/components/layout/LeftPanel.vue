@@ -13,6 +13,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   openProject: [projectId: number]
+  editProject: [projectId: number, newTitle: string]
   deleteProject: [projectId: number]
   createProject: [title: string]
   restoreSnapshot: [snapshotId: number, shapesData: string]
@@ -36,6 +37,10 @@ defineExpose({
 
 const handleOpenProject = (projectId: number) => {
   emit('openProject', projectId)
+}
+
+const handleEditProject = (projectId: number, newTitle: string) => {
+  emit('editProject', projectId, newTitle)
 }
 
 const handleDeleteProject = (projectId: number) => {
@@ -124,6 +129,7 @@ const handleUpdateTotalDuration = (duration: number) => {
         <ProjectList
           v-else-if="activeView === 'history'"
           @open-project="handleOpenProject"
+          @edit-project="handleEditProject"
           @delete-project="handleDeleteProject"
           @create-project="handleCreateProject"
           @restore-snapshot="handleRestoreSnapshot"

@@ -19,6 +19,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   open: [projectId: number]
+  edit: [projectId: number, newTitle: string]
   delete: [projectId: number]
   toggleExpand: [projectId: number]
   restoreSnapshot: [snapshotId: number, shapesData: string]
@@ -48,6 +49,13 @@ const getLatestSnapshotData = (): string => {
       <div class="project-info">
         <h3 class="project-title">{{ project.title }}</h3>
         <p class="project-date">{{ formatDate(project.updatedAt) }}</p>
+        <div>
+          <input
+          type="text"
+          :value="project.title"
+          @input="(e) => emit('edit', project.id, (e.target as HTMLInputElement).value)"
+          />
+        </div>
       </div>
       <button
         class="delete-btn"
