@@ -133,8 +133,8 @@ const handleEditProject = async (projectId: number, newTitle: string) => {
     const project = await fetchProjectById(projectId)
     if (project) {
       currentProjectId.value = project.id
-      project.title = newTitle     
       await updateProject(projectId, newTitle); 
+      await fetchProjects()
     }
   } catch (err) {
     console.error('Failed to edit project:', err)
