@@ -4,8 +4,8 @@ A full-stack web application for creating and animating SVG graphics with versio
 
 | | Tests | Coverage |
 |---------|-------|----------|
-| **Backend** | [![Backend Tests](https://github.com/Merwanel/SVGboard/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/Merwanel/SVGboard/actions/workflows/backend-tests.yml) | [![codecov](https://codecov.io/gh/Merwanel/SVGboard/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/Merwanel/SVGboard) |
-| **Frontend** | [![Frontend Tests](https://github.com/Merwanel/SVGboard/actions/workflows/frontend-tests.yml/badge.svg)](https://github.com/Merwanel/SVGboard/actions/workflows/frontend-tests.yml) | [![codecov](https://codecov.io/gh/Merwanel/SVGboard/branch/main/graph/badge.svg?flag=frontend)](https://codecov.io/gh/Merwanel/SVGboard) |
+| **Backend** | [![Backend Tests](https://github.com/Merwanel/SVGboard/actions/workflows/backend-tests-push.yml/badge.svg)](https://github.com/Merwanel/SVGboard/actions/workflows/backend-tests.yml) | [![codecov](https://codecov.io/gh/Merwanel/SVGboard/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/Merwanel/SVGboard) |
+| **Frontend** | [![Frontend Tests](https://github.com/Merwanel/SVGboard/actions/workflows/frontend-tests-push.yml/badge.svg)](https://github.com/Merwanel/SVGboard/actions/workflows/frontend-tests.yml) | [![codecov](https://codecov.io/gh/Merwanel/SVGboard/branch/main/graph/badge.svg?flag=frontend)](https://codecov.io/gh/Merwanel/SVGboard) |
 
 
 ![architecture diagram](diag.svg)
